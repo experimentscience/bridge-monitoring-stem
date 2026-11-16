@@ -1,766 +1,747 @@
 
 import streamlit as st
-import streamlit.components.v1 as components
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from datetime import datetime
+import time
+
+# --------------------------------------------------
+# PAGE CONFIGURATION
+# --------------------------------------------------
 
 st.set_page_config(
     page_title="Intelligent Bridge Monitoring",
     page_icon="🌉",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
 st.markdown("""
 <style>
-html, body, [data-testid="stAppViewContainer"],
-[data-testid="stMain"], [data-testid="stMainBlockContainer"],
-[data-testid="stVerticalBlock"] {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #07131d !important;
+.stApp {
+    background-color: #101820;
+    color: #edf4fa;
 }
-[data-testid="stHeader"], [data-testid="stToolbar"],
-[data-testid="stSidebar"], footer {
-    display: none !important;
+[data-testid="stSidebar"] {
+    background-color: #172532;
 }
-iframe { border: 0 !important; }
+.metric-card {
+    background: #1c2d3b;
+    border: 1px solid #344a5c;
+    padding: 17px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.metric-label {
+    font-size: 12px;
+    color: #9db4c6;
+}
+.metric-value {
+    font-size: 27px;
+    font-weight: 700;
+    color: #eaf5ff;
+}
+.metric-unit {
+    font-size: 11px;
+    color: #91a9ba;
+}
+.section-title {
+    color: #70c8ef;
+    font-size: 19px;
+    font-weight: 650;
+}
+.status-normal {
+    color: #48dfa0;
+    font-weight: bold;
+}
+.status-warning {
+    color: #ffc46b;
+    font-weight: bold;
+}
+.status-critical {
+    color: #ff7777;
+    font-weight: bold;
+}
 </style>
 """, unsafe_allow_html=True)
 
-HTML = r"""
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
 
-<style>
-* { box-sizing:border-box; }
-html,body,#scene {
-    margin:0;width:100%;height:100%;
-    overflow:hidden;font-family:Arial,sans-serif;
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+if "sample" not in st.session_state:
+    st.session_state.sample = 0
+
+if "event_active" not in st.session_state:
+    st.session_state.event_active = False
+
+if "event_start" not in st.session_state:
+    st.session_state.event_start = 0
+
+if "event_history" not in st.session_state:
+    st.session_state.event_history = []
+
+if "simulation_running" not in st.session_state:
+    st.session_state.simulation_running = True
+
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
+
+st.title("🌉 Intelligent Bridge Monitoring System")
+
+st.caption(
+    "Continuous Structural Health Monitoring | "
+    "Event-Triggered Adaptive Sensor Attention"
+)
+
+st.divider()
+
+# --------------------------------------------------
+# SIDEBAR: SEVEN CONTROLS
+# --------------------------------------------------
+
+st.sidebar.title("Simulation Controls")
+st.sidebar.caption("Configure the educational bridge simulation.")
+
+vehicle_load = st.sidebar.slider(
+    "1. Vehicle Load (tons)",
+    2, 45, 18
+)
+
+vehicle_speed = st.sidebar.slider(
+    "2. Vehicle Speed (km/h)",
+    10, 110, 55
+)
+
+traffic_level = st.sidebar.slider(
+    "3. Traffic Intensity (%)",
+    0, 100, 45
+)
+
+stiffness_change = st.sidebar.slider(
+    "4. Structural Change (%)",
+    0, 30, 0
+)
+
+trigger_sensitivity = st.sidebar.slider(
+    "5. Trigger Sensitivity (%)",
+    10, 100, 65
+)
+
+persistence_window = st.sidebar.slider(
+    "6. Persistence Window (samples)",
+    3, 60, 15
+)
+
+sampling_interval = st.sidebar.selectbox(
+    "7. Sampling Interval",
+    [1, 2, 5, 10],
+    index=1
+)
+
+st.sidebar.divider()
+
+if st.sidebar.button("Simulate Structural Event", use_container_width=True):
+    st.session_state.event_active = True
+    st.session_state.event_start = st.session_state.sample
+    st.session_state.event_history.append({
+        "Time": datetime.now().strftime("%H:%M:%S"),
+        "Event": "Manual structural event simulation"
+    })
+
+if st.sidebar.button("Reset Simulation", use_container_width=True):
+    st.session_state.history = []
+    st.session_state.sample = 0
+    st.session_state.event_active = False
+    st.session_state.event_start = 0
+    st.session_state.event_history = []
+    st.rerun()
+
+# --------------------------------------------------
+# SENSOR SIMULATION ENGINE
+# --------------------------------------------------
+
+def generate_sensor_reading(sample):
+    """
+    Generate illustrative sensor measurements.
+    These are simulated values, not actual bridge measurements.
+    """
+
+    rng = np.random.default_rng(sample + 2026)
+
+    traffic_factor = traffic_level / 100
+    load_factor = vehicle_load / 18
+    speed_factor = vehicle_speed / 55
+
+    structural_factor = stiffness_change / 100
+
+    wave = np.sin(sample * 0.25)
+
+    strain = (
+        105
+        + traffic_factor * load_factor * 25
+        + structural_factor * 90
+        + wave * 3
+        + rng.normal(0, 1.5)
+    )
+
+    deflection = (
+        2.7
+        + traffic_factor * load_factor * 1.1
+        + structural_factor * 3.2
+        + rng.normal(0, 0.08)
+    )
+
+    vibration = (
+        0.13
+        + traffic_factor * speed_factor * 0.12
+        + structural_factor * 0.30
+        + abs(wave) * 0.03
+        + rng.normal(0, 0.012)
+    )
+
+    temperature = (
+        27.4
+        + np.sin(sample * 0.02) * 1.2
+        + rng.normal(0, 0.08)
+    )
+
+    tilt = (
+        0.08
+        + structural_factor * 0.6
+        + rng.normal(0, 0.01)
+    )
+
+    humidity = (
+        65
+        + np.sin(sample * 0.015) * 4
+        + rng.normal(0, 0.5)
+    )
+
+    corrosion = (
+        0.15
+        + structural_factor * 0.05
+        + rng.normal(0, 0.005)
+    )
+
+    return {
+        "Sample": sample,
+        "Timestamp": datetime.now(),
+        "Strain": strain,
+        "Deflection": deflection,
+        "Vibration": vibration,
+        "Temperature": temperature,
+        "Tilt": tilt,
+        "Humidity": humidity,
+        "Corrosion": corrosion,
+        "Traffic": traffic_level,
+        "Vehicle Load": vehicle_load,
+        "Vehicle Speed": vehicle_speed
+    }
+
+# --------------------------------------------------
+# SENSOR BASELINE
+# --------------------------------------------------
+
+BASELINE = {
+    "Strain": 105,
+    "Deflection": 2.7,
+    "Vibration": 0.13,
+    "Temperature": 27.4,
+    "Tilt": 0.08,
+    "Humidity": 65,
+    "Corrosion": 0.15
 }
-body { background:#8bbbd3;color:white; }
-#scene { position:fixed;inset:0;z-index:0; }
-canvas { display:block; }
 
-.glass {
-    background:linear-gradient(135deg,
-        rgba(10,27,42,.82),rgba(13,43,60,.58));
-    border:1px solid rgba(210,240,255,.24);
-    border-radius:13px;
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-    box-shadow:0 12px 35px #06152255,
-        inset 0 1px 0 #ffffff20;
-}
-#header {
-    position:absolute;z-index:5;top:15px;left:18px;right:18px;
-    height:65px;padding:0 20px;
-    display:flex;align-items:center;justify-content:space-between;
-}
-.brand { display:flex;align-items:center;gap:13px; }
-.logo {
-    width:39px;height:39px;border-radius:10px;
-    display:grid;place-items:center;font-size:21px;
-    background:#42bce533;border:1px solid #7adcf077;
-}
-h1 { font-size:15px;letter-spacing:1.3px;margin:0; }
-.sub { font-size:9px;color:#a8cbdc;letter-spacing:1.7px;margin-top:5px; }
-.status { font-size:10px;color:#d7eaf4;letter-spacing:1px; }
-.dot {
-    display:inline-block;width:7px;height:7px;
-    background:#4de7a1;border-radius:50%;
-    box-shadow:0 0 10px #4de7a1;margin-right:7px;
-}
-.panel {
-    position:absolute;z-index:5;top:96px;
-    padding:17px;width:258px;
-}
-#left { left:18px; }
-#right { right:18px;width:280px; }
-.heading {
-    font-size:10px;letter-spacing:1.5px;
-    color:#a9d8eb;font-weight:bold;margin-bottom:15px;
-}
-.label {
-    font-size:9px;letter-spacing:1.1px;
-    color:#8fb7ca;text-transform:uppercase;margin:13px 0 9px;
-}
-.control { margin:12px 0; }
-.controlhead {
-    display:flex;justify-content:space-between;
-    font-size:10px;margin-bottom:6px;color:#d7e8f1;
-}
-.controlhead strong { color:white; }
-input[type=range] { width:100%;accent-color:#42c8e8; }
-select,button {
-    width:100%;padding:9px;border-radius:7px;
-    color:white;background:#102d40;
-    border:1px solid #b5d9e344;font-size:10px;
-}
-button { cursor:pointer;margin-top:7px; }
-button:hover { background:#1c536b; }
-.separator {
-    border-top:1px solid #ffffff20;
-    margin-top:14px;padding-top:10px;
-}
-.grid {
-    display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.metric {
-    background:#ffffff0b;border:1px solid #ffffff15;
-    border-radius:8px;padding:11px;
-}
-.metric small {
-    display:block;font-size:8px;letter-spacing:1px;
-    color:#9db9c9;text-transform:uppercase;
-}
-.metric strong { display:block;font-size:20px;margin-top:7px; }
-.metric em { display:block;font-size:8px;color:#8daebe;margin-top:3px;font-style:normal; }
-.blue { color:#75dcf7; }
-.green { color:#65e8a7; }
-.orange { color:#ffc17c; }
-.red { color:#ff7777; }
-.sensor {
-    display:flex;justify-content:space-between;
-    padding:9px 0;border-bottom:1px solid #ffffff12;
-    font-size:9px;
-}
-.sensor i {
-    display:inline-block;width:7px;height:7px;
-    background:#4be7a0;border-radius:50%;margin-right:7px;
-    box-shadow:0 0 8px #4be7a0;
-}
-.sensor i.extra { background:#ff655f;box-shadow:0 0 8px #ff655f; }
-#bottom {
-    position:absolute;z-index:5;left:18px;right:18px;bottom:15px;
-    min-height:83px;padding:13px 18px;
-    display:grid;grid-template-columns:repeat(4,1fr);
-}
-.bottomcell { padding:2px 15px;border-right:1px solid #ffffff20; }
-.bottomcell:last-child { border:0; }
-.bottomlabel { color:#9dbbcb;font-size:8px;letter-spacing:1.2px; }
-.bottomvalue { font-size:17px;font-weight:bold;margin-top:8px; }
-.bottomsub { color:#9db5c2;font-size:8px;margin-top:4px; }
-#loading {
-    position:absolute;inset:0;z-index:20;
-    display:flex;align-items:center;justify-content:center;
-    flex-direction:column;background:#739fb9;color:white;
-    font-size:12px;letter-spacing:1.5px;
-}
-#loading strong { font-size:17px;margin-bottom:12px; }
-#error {
-    display:none;margin-top:16px;max-width:500px;
-    padding:12px;background:#481f28;border-radius:8px;
-    color:#ffd9d9;font-size:11px;letter-spacing:0;
-}
-#alert {
-    position:absolute;z-index:7;top:90px;left:50%;
-    transform:translateX(-50%);padding:10px 18px;
-    font-size:10px;opacity:0;transition:opacity .3s;
-    white-space:nowrap;
-}
-@media(max-width:850px) {
-    .panel { width:205px;top:85px;padding:11px; }
-    #right { width:220px; }
-    #left { left:7px; }
-    #right { right:7px; }
-    #bottom { left:7px;right:7px; }
-}
-</style>
+def calculate_deviation(value, baseline):
+    if baseline == 0:
+        return 0
+    return abs(value - baseline) / abs(baseline) * 100
 
-<script type="importmap">
-{
- "imports": {
-  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
- }
-}
-</script>
-</head>
+def analyze_readings(reading):
+    deviations = {
+        key: calculate_deviation(reading[key], BASELINE[key])
+        for key in BASELINE
+    }
 
-<body>
-<div id="scene"></div>
+    maximum = max(deviations.values())
 
-<div id="loading">
-    <strong>INTELLIGENT BRIDGE MONITORING</strong>
-    Loading bridge model and environment...
-    <div id="error"></div>
-</div>
+    threshold = 10 + trigger_sensitivity * 0.45
 
-<div id="header" class="glass">
-    <div class="brand">
-        <div class="logo">🌉</div>
-        <div>
-            <h1>INTELLIGENT BRIDGE MONITORING</h1>
-            <div class="sub">STRUCTURAL HEALTH INTELLIGENCE SYSTEM</div>
-        </div>
-    </div>
-    <div class="status">
-        <span class="dot"></span>SYSTEM ONLINE
-        &nbsp;&nbsp; | &nbsp;&nbsp;
-        <span id="modeTop">CONTINUOUS MONITORING</span>
-        &nbsp;&nbsp; | &nbsp;&nbsp;
-        <span id="clock">--:--:--</span>
-    </div>
-</div>
+    return deviations, maximum, maximum >= threshold
 
-<div id="left" class="panel glass">
-    <div class="heading">SIMULATION CONTROLS</div>
-    <div class="label">Traffic simulation</div>
+# --------------------------------------------------
+# GENERATE NEW SAMPLE
+# --------------------------------------------------
 
-    <div class="control">
-        <div class="controlhead"><span>Vehicle load</span><strong id="weightText">18 tons</strong></div>
-        <input id="weight" type="range" min="2" max="45" value="18">
-    </div>
-    <div class="control">
-        <div class="controlhead"><span>Vehicle speed</span><strong id="speedText">55 km/h</strong></div>
-        <input id="speed" type="range" min="10" max="110" value="55">
-    </div>
-    <div class="control">
-        <div class="controlhead"><span>Traffic intensity</span><strong id="trafficText">45%</strong></div>
-        <input id="traffic" type="range" min="0" max="100" value="45">
-    </div>
+if st.session_state.simulation_running:
+    new_sample = generate_sensor_reading(
+        st.session_state.sample
+    )
 
-    <div class="separator">
-        <div class="label">Structural simulation</div>
-        <div class="control">
-            <div class="controlhead"><span>Stiffness change</span><strong id="stiffText">0%</strong></div>
-            <input id="stiffness" type="range" min="0" max="30" value="0">
-        </div>
-        <div class="control">
-            <div class="controlhead"><span>Trigger sensitivity</span><strong id="triggerText">65%</strong></div>
-            <input id="trigger" type="range" min="10" max="100" value="65">
-        </div>
-        <div class="label">Test location</div>
-        <select id="location">
-            <option>Center span</option>
-            <option>North approach</option>
-            <option>South approach</option>
-            <option>Main tower</option>
-        </select>
-        <button id="event">SIMULATE STRUCTURAL EVENT</button>
-        <button id="reset">RESET SIMULATION</button>
-    </div>
-    <div class="separator">
-        <button id="sensors">TOGGLE SENSOR MARKERS</button>
-        <button id="camera">RESET CAMERA</button>
-    </div>
-</div>
+    st.session_state.history.append(new_sample)
+    st.session_state.sample += 1
 
-<div id="right" class="panel glass">
-    <div class="heading">LIVE STRUCTURAL TELEMETRY</div>
-    <div class="grid">
-        <div class="metric"><small>Deck strain</small><strong class="blue" id="strain">112</strong><em>με · simulated</em></div>
-        <div class="metric"><small>Deflection</small><strong class="blue" id="deflection">3.2</strong><em>mm · simulated</em></div>
-        <div class="metric"><small>Vibration</small><strong class="blue" id="vibration">0.18</strong><em>mm/s · simulated</em></div>
-        <div class="metric"><small>Temperature</small><strong class="blue" id="temperature">27.4</strong><em>°C · simulated</em></div>
-    </div>
-    <div class="separator">
-        <div class="heading">SENSOR NETWORK</div>
-        <div class="sensor"><span><i></i>Primary strain sensors</span><b class="green">ACTIVE</b></div>
-        <div class="sensor"><span><i></i>Accelerometers</span><b class="green">ACTIVE</b></div>
-        <div class="sensor"><span><i></i>Displacement sensors</span><b class="green">ACTIVE</b></div>
-        <div class="sensor"><span><i class="extra"></i>Acoustic sensors</span><b id="extra" class="orange">STANDBY</b></div>
-        <div class="sensor"><span><i class="extra"></i>Thermal attention</span><b id="thermal" class="orange">STANDBY</b></div>
-    </div>
-    <div class="separator">
-        <div class="heading">EVENT ANALYSIS</div>
-        <div class="sensor"><span>Monitoring mode</span><b id="mode" class="green">NORMAL</b></div>
-        <div class="sensor"><span>Change signal</span><b id="signal">LOW</b></div>
-        <div class="sensor"><span>Persistence check</span><b id="persist">WAITING</b></div>
-        <div class="sensor"><span>Interpretation</span><b id="interpret" class="green">BASELINE</b></div>
-    </div>
-</div>
+    if len(st.session_state.history) > 500:
+        st.session_state.history = st.session_state.history[-500:]
 
-<div id="alert" class="glass"></div>
+history_df = pd.DataFrame(st.session_state.history)
 
-<div id="bottom" class="glass">
-    <div class="bottomcell">
-        <div class="bottomlabel">TRAFFIC FLOW</div>
-        <div class="bottomvalue" id="flow">45%</div>
-        <div class="bottomsub">Relative to simulated normal traffic</div>
-    </div>
-    <div class="bottomcell">
-        <div class="bottomlabel">VEHICLE ACTIVITY</div>
-        <div class="bottomvalue" id="vehicleCount">4</div>
-        <div class="bottomsub">Vehicles in simulation</div>
-    </div>
-    <div class="bottomcell">
-        <div class="bottomlabel">SENSOR ATTENTION</div>
-        <div class="bottomvalue green" id="attention">STANDARD</div>
-        <div class="bottomsub">Adaptive attention state</div>
-    </div>
-    <div class="bottomcell">
-        <div class="bottomlabel">DATA ACQUISITION</div>
-        <div class="bottomvalue" id="samples">000001</div>
-        <div class="bottomsub">Illustrative simulation samples</div>
-    </div>
-</div>
+if history_df.empty:
+    st.warning("Waiting for the first sensor reading.")
+    st.stop()
 
-<script type="module">
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
-import { Water } from "three/addons/objects/Water.js";
+latest = history_df.iloc[-1].to_dict()
 
-const $ = id => document.getElementById(id);
-const sceneRoot = $("scene");
+deviations, maximum_deviation, signal_detected = analyze_readings(
+    latest
+)
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x9fc6dc);
-scene.fog = new THREE.FogExp2(0x9fc6dc,0.00035);
+# --------------------------------------------------
+# EVENT-TRIGGERED ADAPTIVE ATTENTION
+# --------------------------------------------------
 
-const camera = new THREE.PerspectiveCamera(
-    43,innerWidth/innerHeight,0.1,5000
-);
-camera.position.set(170,90,220);
+if signal_detected:
+    st.session_state.event_active = True
+    st.session_state.event_start = st.session_state.sample
 
-const renderer = new THREE.WebGLRenderer({
-    antialias:true,
-    powerPreference:"high-performance"
-});
-renderer.setSize(innerWidth,innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
-sceneRoot.appendChild(renderer.domElement);
+samples_since_trigger = (
+    st.session_state.sample - st.session_state.event_start
+)
 
-const controls = new OrbitControls(camera,renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = .045;
-controls.target.set(0,28,0);
-controls.minDistance = 55;
-controls.maxDistance = 700;
-controls.maxPolarAngle = Math.PI*.49;
+if (
+    st.session_state.event_active
+    and samples_since_trigger >= persistence_window
+    and not signal_detected
+):
+    st.session_state.event_active = False
 
-scene.add(new THREE.HemisphereLight(0xd8edff,0x526b51,1.35));
+adaptive_mode = st.session_state.event_active
 
-const sun = new THREE.DirectionalLight(0xfff0d8,3.0);
-sun.position.set(-180,250,130);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left = -300;
-sun.shadow.camera.right = 300;
-sun.shadow.camera.top = 300;
-sun.shadow.camera.bottom = -300;
-scene.add(sun);
+if adaptive_mode:
+    monitoring_status = "SPECIAL ATTENTION"
+else:
+    monitoring_status = "NORMAL MONITORING"
 
-const pmrem = new THREE.PMREMGenerator(renderer);
-pmrem.compileEquirectangularShader();
+# --------------------------------------------------
+# TOP STATUS
+# --------------------------------------------------
 
-const hdriURL =
-"https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/kloofendal_48d_partly_cloudy_puresky_1k.hdr";
+status_col1, status_col2, status_col3, status_col4 = st.columns(4)
 
-new RGBELoader().load(
-    hdriURL,
-    texture => {
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        scene.background = texture;
-        scene.environment = pmrem.fromEquirectangular(texture).texture;
-        texture.dispose();
-        pmrem.dispose();
-    },
-    undefined,
-    error => console.warn("HDR environment unavailable; using scene lighting.",error)
-);
+with status_col1:
+    st.metric("System Status", "ONLINE")
 
-// Water with animated normal maps and reflections
-const water = new Water(
-    new THREE.PlaneGeometry(5000,5000),
-    {
-        textureWidth:1024,
-        textureHeight:1024,
-        waterNormals:new THREE.TextureLoader().load(
-            "https://threejs.org/examples/textures/waternormals.jpg",
-            t => { t.wrapS=t.wrapT=THREE.RepeatWrapping; }
+with status_col2:
+    st.metric("Monitoring Mode", monitoring_status)
+
+with status_col3:
+    st.metric("Samples Collected", st.session_state.sample)
+
+with status_col4:
+    st.metric("Maximum Deviation", f"{maximum_deviation:.2f}%")
+
+st.divider()
+
+# --------------------------------------------------
+# FIVE ORIGINAL DASHBOARD TABS
+# --------------------------------------------------
+
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "Overview",
+    "Live Monitoring",
+    "Event Detection",
+    "Sensor History",
+    "Data Export"
+])
+
+# ==================================================
+# TAB 1: OVERVIEW
+# ==================================================
+
+with tab1:
+
+    st.subheader("Bridge Monitoring Overview")
+
+    st.markdown(
+        "Continuous primary sensing with event-triggered "
+        "adaptive attention."
+    )
+
+    cols = st.columns(4)
+
+    metrics = [
+        ("Deck Strain", latest["Strain"], "με"),
+        ("Deflection", latest["Deflection"], "mm"),
+        ("Vibration", latest["Vibration"], "mm/s"),
+        ("Temperature", latest["Temperature"], "°C")
+    ]
+
+    for col, (name, value, unit) in zip(cols, metrics):
+        with col:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">{name}</div>
+                    <div class="metric-value">{value:.2f}</div>
+                    <div class="metric-unit">{unit}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+    st.subheader("Structural Sensor Status")
+
+    sensor_data = pd.DataFrame({
+        "Sensor": list(BASELINE.keys()),
+        "Current Reading": [
+            latest[k] for k in BASELINE
+        ],
+        "Baseline": [
+            BASELINE[k] for k in BASELINE
+        ],
+        "Deviation (%)": [
+            deviations[k] for k in BASELINE
+        ]
+    })
+
+    st.dataframe(
+        sensor_data,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.subheader("Monitoring Architecture")
+
+    st.markdown("""
+    **NORMAL MODE**
+    - Continuous strain monitoring
+    - Continuous vibration monitoring
+    - Continuous deflection monitoring
+    - Continuous temperature monitoring
+
+    **SPECIAL ATTENTION MODE**
+    - Additional acoustic monitoring
+    - Additional thermal analysis
+    - Detailed tilt and displacement analysis
+    - Extended signal observation
+    - Persistence evaluation
+    """)
+
+    if adaptive_mode:
+        st.warning(
+            "Adaptive attention is active. "
+            "Additional simulated monitoring channels are enabled."
+        )
+    else:
+        st.success(
+            "Normal monitoring mode is active."
+        )
+
+# ==================================================
+# TAB 2: LIVE MONITORING
+# ==================================================
+
+with tab2:
+
+    st.subheader("Live Sensor Monitoring")
+
+    chart = make_subplots(
+        rows=3,
+        cols=1,
+        subplot_titles=(
+            "Strain",
+            "Deflection",
+            "Vibration"
         ),
-        sunDirection:new THREE.Vector3(-1,1,1).normalize(),
-        sunColor:0xffffff,
-        waterColor:0x285f78,
-        distortionScale:2.5,
-        fog:true
-    }
-);
-water.rotation.x=-Math.PI/2;
-water.position.y=-4;
-scene.add(water);
+        vertical_spacing=0.12
+    )
 
-// Distant shoreline
-const terrainMaterial = new THREE.MeshStandardMaterial({
-    color:0x66865b,roughness:1
-});
+    chart.add_trace(
+        go.Scatter(
+            x=history_df["Sample"],
+            y=history_df["Strain"],
+            name="Strain",
+            line=dict(color="#48c9ef", width=2)
+        ),
+        row=1, col=1
+    )
 
-function hill(x,y,z,sx,sy,sz,color){
-    const mesh=new THREE.Mesh(
-        new THREE.SphereGeometry(1,40,28),
-        new THREE.MeshStandardMaterial({color,roughness:1})
-    );
-    mesh.position.set(x,y,z);
-    mesh.scale.set(sx,sy,sz);
-    mesh.receiveShadow=true;
-    scene.add(mesh);
-}
-for(let i=0;i<16;i++){
-    hill(-1000+i*135,12,-850-Math.random()*120,
-        110,55+Math.random()*30,100,
-        i%2?0x597b50:0x718c5c);
-}
-for(let i=0;i<14;i++){
-    hill(-900+i*145,12,850+Math.random()*100,
-        120,55+Math.random()*35,100,
-        i%2?0x587950:0x718c5c);
-}
+    chart.add_trace(
+        go.Scatter(
+            x=history_df["Sample"],
+            y=history_df["Deflection"],
+            name="Deflection",
+            line=dict(color="#64dfa5", width=2)
+        ),
+        row=2, col=1
+    )
 
-// Bridge model
-const bridgeGroup = new THREE.Group();
-scene.add(bridgeGroup);
+    chart.add_trace(
+        go.Scatter(
+            x=history_df["Sample"],
+            y=history_df["Vibration"],
+            name="Vibration",
+            line=dict(color="#f2b96e", width=2)
+        ),
+        row=3, col=1
+    )
 
-const bridgeURL =
-"https://raw.githubusercontent.com/experimentscience/bridge-monitoring-stem/main/assets/cable-stayed-bridge.glb";
+    chart.update_layout(
+        height=680,
+        template="plotly_dark",
+        showlegend=False,
+        margin=dict(l=15, r=15, t=50, b=20)
+    )
 
-let bridgeReady=false;
-let bridgeLength=380;
-let bridgeWidth=64;
-let deckHeight=10;
+    st.plotly_chart(
+        chart,
+        use_container_width=True
+    )
 
-function prepareModel(root){
-    // Turn the bridge so its longest horizontal axis runs left-to-right.
-    let box=new THREE.Box3().setFromObject(root);
-    let size=box.getSize(new THREE.Vector3());
+    st.subheader("Additional Sensor Readings")
 
-    if(size.z>size.x){
-        root.rotation.y=Math.PI/2;
-    }
+    extra_cols = st.columns(3)
 
-    box=new THREE.Box3().setFromObject(root);
-    let center=box.getCenter(new THREE.Vector3());
-    root.position.sub(center);
+    extra_metrics = [
+        ("Tilt", latest["Tilt"], "degrees"),
+        ("Humidity", latest["Humidity"], "%"),
+        ("Corrosion Indicator", latest["Corrosion"], "index")
+    ]
 
-    box=new THREE.Box3().setFromObject(root);
-    size=box.getSize(new THREE.Vector3());
+    for col, (name, value, unit) in zip(extra_cols, extra_metrics):
+        with col:
+            st.metric(name, f"{value:.3f} {unit}")
 
-    const longest=Math.max(size.x,size.z);
-    const scale=380/longest;
-    root.scale.setScalar(scale);
+# ==================================================
+# TAB 3: EVENT DETECTION
+# ==================================================
 
-    box=new THREE.Box3().setFromObject(root);
-    center=box.getCenter(new THREE.Vector3());
-    root.position.x-=center.x;
-    root.position.z-=center.z;
-    root.position.y-=box.min.y;
+with tab3:
 
-    root.traverse(obj=>{
-        if(!obj.isMesh)return;
-        obj.castShadow=true;
-        obj.receiveShadow=true;
-        if(obj.material){
-            obj.material.needsUpdate=true;
-        }
-    });
+    st.subheader("Event-Triggered Adaptive Attention")
 
-    bridgeLength=380;
-    bridgeWidth=Math.min(64,size.z*scale);
-    deckHeight=10;
-}
+    st.markdown("""
+    The system continuously receives primary sensor readings.
+    When a reading deviates sufficiently from its baseline,
+    the system activates additional monitoring attention.
+    """)
 
-function showError(message){
-    $("error").style.display="block";
-    $("error").textContent=message;
-    $("loading").style.background="#492b35";
-}
+    if adaptive_mode:
+        st.error("SPECIAL ATTENTION MODE ACTIVE")
+    else:
+        st.success("NORMAL MONITORING MODE")
 
-new GLTFLoader().load(
-    bridgeURL,
-    gltf=>{
-        const model=gltf.scene;
-        prepareModel(model);
-        bridgeGroup.add(model);
-        bridgeReady=true;
-        $("loading").style.display="none";
-        console.log("Actual bridge model loaded.");
-    },
-    progress=>{
-        if(progress.total){
-            console.log("Model loading:",
-                Math.round(progress.loaded/progress.total*100)+"%");
-        }
-    },
-    error=>{
-        console.error(error);
-        showError(
-            "The bridge model could not be loaded. Check that the GLB exists in the GitHub main/assets folder and that the repository is public."
-        );
-    }
-);
+    st.subheader("Baseline Comparison")
 
-// Sensor marker system
-const sensorGroup=new THREE.Group();
-scene.add(sensorGroup);
+    deviation_df = pd.DataFrame({
+        "Sensor": list(deviations.keys()),
+        "Deviation (%)": list(deviations.values())
+    })
 
-const primarySensors=[];
-const extraSensors=[];
+    deviation_chart = go.Figure(
+        go.Bar(
+            x=deviation_df["Sensor"],
+            y=deviation_df["Deviation (%)"],
+            marker_color="#42bde9"
+        )
+    )
 
-function addSensor(x,y,z,extra=false){
-    const color=extra?0xff514d:0x43f0a1;
-    const material=new THREE.MeshStandardMaterial({
-        color,emissive:color,emissiveIntensity:1.5
-    });
-    const marker=new THREE.Mesh(
-        new THREE.SphereGeometry(.85,18,18),material
-    );
-    marker.position.set(x,y,z);
-    sensorGroup.add(marker);
+    deviation_chart.update_layout(
+        template="plotly_dark",
+        height=380,
+        yaxis_title="Deviation (%)"
+    )
 
-    const halo=new THREE.Mesh(
-        new THREE.SphereGeometry(1.8,18,18),
-        new THREE.MeshBasicMaterial({
-            color,transparent:true,opacity:.17,
-            side:THREE.BackSide
-        })
-    );
-    halo.position.copy(marker.position);
-    sensorGroup.add(halo);
+    st.plotly_chart(
+        deviation_chart,
+        use_container_width=True
+    )
 
-    (extra?extraSensors:primarySensors).push({marker,halo});
-}
+    st.subheader("Event Interpretation")
 
-// Initial marker positions are illustrative; refine after checking
-// the model's deck alignment in the actual app.
-for(let x=-165;x<=165;x+=33){
-    addSensor(x,deckHeight+1,-9);
-    addSensor(x,deckHeight+1,9);
-}
-for(const x of [-72,72]){
-    addSensor(x,deckHeight+30,0,true);
-    addSensor(x,deckHeight+55,0,true);
-}
+    st.write(
+        f"Maximum deviation: {maximum_deviation:.2f}%"
+    )
 
-// Traffic vehicles
-const vehicleGroup=new THREE.Group();
-scene.add(vehicleGroup);
-const vehicles=[];
-const carColors=[0xe6e9eb,0x263e51,0xb2a27f,0x63747c,0xeeeeea];
+    st.write(
+        f"Trigger threshold: "
+        f"{10 + trigger_sensitivity * 0.45:.2f}%"
+    )
 
-function createCar(i){
-    const g=new THREE.Group();
-    const paint=new THREE.MeshStandardMaterial({
-        color:carColors[i%carColors.length],
-        metalness:.55,roughness:.28
-    });
-    const glass=new THREE.MeshPhysicalMaterial({
-        color:0x182c3a,metalness:.25,
-        roughness:.12,clearcoat:1
-    });
-    function part(w,h,d,y,mat,x=0){
-        const m=new THREE.Mesh(
-            new THREE.BoxGeometry(w,h,d),mat
-        );
-        m.position.set(x,y,0);
-        m.castShadow=true;
-        g.add(m);
-    }
-    part(7,1.7,3.1,1.2,paint);
-    part(3.6,1.25,2.65,2.55,glass,.2);
+    st.write(
+        f"Persistence observation: "
+        f"{samples_since_trigger} samples"
+    )
 
-    const wheelMat=new THREE.MeshStandardMaterial({
-        color:0x171b20,roughness:.9
-    });
-    for(const x of [-2.2,2.2]){
-        for(const z of [-1.6,1.6]){
-            const wheel=new THREE.Mesh(
-                new THREE.CylinderGeometry(.58,.58,.35,20),
-                wheelMat
-            );
-            wheel.rotation.x=Math.PI/2;
-            wheel.position.set(x,.58,z);
-            g.add(wheel);
-        }
-    }
-    vehicleGroup.add(g);
-    return g;
-}
+    if signal_detected:
+        st.warning(
+            "A simulated change signal has crossed the configured threshold."
+        )
+    else:
+        st.info(
+            "No simulated sensor deviation has crossed the trigger threshold."
+        )
 
-for(let i=0;i<7;i++){
-    vehicles.push({
-        mesh:createCar(i),
-        progress:i/7,
-        lane:i%2===0?-5:5,
-        speed:.00015+Math.random()*.00005
-    });
-}
+    if stiffness_change > 0:
+        st.warning(
+            "A persistent structural-change scenario has been configured "
+            "in the simulation."
+        )
 
-// Controls and simulation
-const weight=$("weight");
-const speed=$("speed");
-const traffic=$("traffic");
-const stiffness=$("stiffness");
-const trigger=$("trigger");
+    st.caption(
+        "The persistence logic in this educational simulation is simplified. "
+        "A real system would use validated multi-sensor trends and "
+        "environmental compensation."
+    )
 
-function labels(){
-    $("weightText").textContent=weight.value+" tons";
-    $("speedText").textContent=speed.value+" km/h";
-    $("trafficText").textContent=traffic.value+"%";
-    $("stiffText").textContent=stiffness.value+"%";
-    $("triggerText").textContent=trigger.value+"%";
-}
-[weight,speed,traffic,stiffness,trigger].forEach(
-    el=>el.addEventListener("input",labels)
-);
-labels();
+    st.subheader("Event Log")
 
-let eventActive=false;
-let elapsed=0;
-let sample=0;
-let persistence=0;
-let sensorsVisible=true;
+    if st.session_state.event_history:
+        st.dataframe(
+            pd.DataFrame(st.session_state.event_history),
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.info("No manually recorded events yet.")
 
-function alertMessage(message){
-    const a=$("alert");
-    a.textContent=message;
-    a.style.opacity=1;
-    clearTimeout(alertMessage.timer);
-    alertMessage.timer=setTimeout(()=>a.style.opacity=0,3200);
-}
+# ==================================================
+# TAB 4: SENSOR HISTORY
+# ==================================================
 
-$("event").onclick=()=>{
-    eventActive=true;
-    persistence=0;
-    alertMessage("EVENT SIMULATION ACTIVATED · ADAPTIVE ATTENTION");
-};
-$("reset").onclick=()=>{
-    eventActive=false;
-    persistence=0;
-    weight.value=18;
-    speed.value=55;
-    traffic.value=45;
-    stiffness.value=0;
-    trigger.value=65;
-    labels();
-    alertMessage("SIMULATION RESET · BASELINE RESTORED");
-};
-$("sensors").onclick=()=>{
-    sensorsVisible=!sensorsVisible;
-    sensorGroup.visible=sensorsVisible;
-};
-$("camera").onclick=()=>{
-    camera.position.set(170,90,220);
-    controls.target.set(0,28,0);
-    controls.update();
-};
+with tab4:
 
-function telemetry(t){
-    const w=Number(weight.value);
-    const tr=Number(traffic.value)/100;
-    const st=Number(stiffness.value)/100;
-    const sensitivity=Number(trigger.value);
+    st.subheader("Long-Term Sensor History")
 
-    const trafficResponse=tr*(w/18)*.18;
-    const structuralResponse=st*.75;
-    const wave=Math.sin(t*1.3)*.035;
+    st.write(
+        f"Stored samples: {len(history_df)}"
+    )
 
-    const strain=105+trafficResponse*100+
-        structuralResponse*90+wave*100;
-    const deflection=2.7+trafficResponse*2.3+
-        structuralResponse*3.2+Math.abs(wave)*2;
-    const vibration=.13+trafficResponse*.45+
-        structuralResponse*.3+Math.abs(wave)*.1;
-    const temperature=27.4+Math.sin(t*.08)*1.2;
+    selected_sensor = st.selectbox(
+        "Select sensor",
+        list(BASELINE.keys())
+    )
 
-    const signal=trafficResponse*100+structuralResponse*100;
-    const threshold=20+sensitivity*.45;
-    const detected=signal>threshold;
+    history_chart = go.Figure()
 
-    persistence=detected?Math.min(persistence+1,100):
-        Math.max(0,persistence-1);
+    history_chart.add_trace(
+        go.Scatter(
+            x=history_df["Sample"],
+            y=history_df[selected_sensor],
+            name="Measured value",
+            mode="lines",
+            line=dict(color="#50c9ef", width=2)
+        )
+    )
 
-    const adaptive=eventActive||persistence>12;
+    history_chart.add_hline(
+        y=BASELINE[selected_sensor],
+        line_dash="dash",
+        line_color="#f0bd6e",
+        annotation_text="Initial baseline"
+    )
 
-    $("strain").textContent=strain.toFixed(0);
-    $("deflection").textContent=deflection.toFixed(2);
-    $("vibration").textContent=vibration.toFixed(2);
-    $("temperature").textContent=temperature.toFixed(1);
+    history_chart.update_layout(
+        template="plotly_dark",
+        height=430,
+        xaxis_title="Sample",
+        yaxis_title=selected_sensor
+    )
 
-    $("flow").textContent=traffic.value+"%";
-    $("vehicleCount").textContent=Math.round(tr*8);
-    $("samples").textContent=String(sample).padStart(6,"0");
+    st.plotly_chart(
+        history_chart,
+        use_container_width=True
+    )
 
-    $("extra").textContent=adaptive?"ACTIVE":"STANDBY";
-    $("thermal").textContent=adaptive?"ACTIVE":"STANDBY";
-    $("attention").textContent=adaptive?"ADAPTIVE":"STANDARD";
-    $("attention").className="bottomvalue "+(adaptive?"red":"green");
+    st.subheader("Recent Sensor Records")
 
-    $("mode").textContent=adaptive?"SPECIAL ATTENTION":"NORMAL";
-    $("mode").className=adaptive?"red":"green";
-    $("modeTop").textContent=adaptive?
-        "ADAPTIVE ATTENTION":"CONTINUOUS MONITORING";
+    st.dataframe(
+        history_df.tail(20),
+        use_container_width=True,
+        hide_index=True
+    )
 
-    $("signal").textContent=detected?"ELEVATED":"LOW";
-    $("signal").className=detected?"orange":"green";
-    $("persist").textContent=persistence>35?
-        "PERSISTENT SIGNAL":"UNDER OBSERVATION";
+# ==================================================
+# TAB 5: DATA EXPORT
+# ==================================================
 
-    $("interpret").textContent=
-        st>0&&persistence>35?"PERSISTENT CHANGE":
-        detected?"REQUIRES REVIEW":"BASELINE";
-    $("interpret").className=
-        st>0&&persistence>35?"orange":
-        detected?"orange":"green";
-}
+with tab5:
 
-function animate(){
-    requestAnimationFrame(animate);
-    const delta=Math.min(clock.getDelta(),.05);
-    elapsed+=delta;
-    sample++;
+    st.subheader("Data Acquisition and Export")
 
-    if(water.material.uniforms.time){
-        water.material.uniforms.time.value+=delta*.4;
-    }
+    st.write(
+        "Download the simulated sensor history for further analysis."
+    )
 
-    const trafficFactor=Number(traffic.value)/45;
-    vehicles.forEach(v=>{
-        v.progress+=v.speed*delta*60*trafficFactor;
-        if(v.progress>1.08)v.progress=-.08;
-        v.mesh.position.set(
-            -190+v.progress*380,
-            deckHeight+2.8,
-            v.lane
-        );
-    });
+    csv = history_df.to_csv(index=False).encode("utf-8")
 
-    [...primarySensors,...extraSensors].forEach(s=>{
-        const pulse=1+Math.sin(elapsed*3+s.marker.position.x*.04)*.1;
-        s.marker.scale.setScalar(pulse);
-        s.halo.scale.setScalar(1+Math.sin(elapsed*2)*.1);
-    });
+    st.download_button(
+        label="⬇ Download Sensor History CSV",
+        data=csv,
+        file_name="bridge_sensor_history.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
 
-    // Small illustrative movement, not a structural physics model.
-    bridgeGroup.position.y=
-        Math.sin(elapsed*2)*Number(stiffness.value)/100*.1;
+    event_df = pd.DataFrame(
+        st.session_state.event_history
+    )
 
-    telemetry(elapsed);
-    $("clock").textContent=new Date().toLocaleTimeString();
+    if not event_df.empty:
+        event_csv = event_df.to_csv(index=False).encode("utf-8")
 
-    controls.update();
-    renderer.render(scene,camera);
-}
+        st.download_button(
+            label="⬇ Download Event Log CSV",
+            data=event_csv,
+            file_name="bridge_event_log.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
 
-const clock=new THREE.Clock();
-animate();
+    st.subheader("Simulation Configuration")
 
-window.addEventListener("resize",()=>{
-    camera.aspect=innerWidth/innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth,innerHeight);
-});
-</script>
-</body>
-</html>
-"""
+    configuration = pd.DataFrame({
+        "Parameter": [
+            "Vehicle Load",
+            "Vehicle Speed",
+            "Traffic Intensity",
+            "Structural Change",
+            "Trigger Sensitivity",
+            "Persistence Window",
+            "Sampling Interval"
+        ],
+        "Value": [
+            vehicle_load,
+            vehicle_speed,
+            traffic_level,
+            stiffness_change,
+            trigger_sensitivity,
+            persistence_window,
+            sampling_interval
+        ]
+    })
 
-components.html(HTML, height=1050, scrolling=False)
+    st.dataframe(
+        configuration,
+        use_container_width=True,
+        hide_index=True
+    )
+
+# --------------------------------------------------
+# FOOTER
+# --------------------------------------------------
+
+st.divider()
+
+st.caption(
+    "INTELLIGENT BRIDGE MONITORING SYSTEM | "
+    "Educational simulation only. "
+    "All generated sensor readings are illustrative, "
+    "not real structural measurements."
+)
