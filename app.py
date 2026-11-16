@@ -12,11 +12,17 @@ st.set_page_config(
 st.markdown("""
 <style>
 #MainMenu,footer,header,[data-testid="stToolbar"],
-[data-testid="stDecoration"],[data-testid="stStatusWidget"]{display:none!important}
+[data-testid="stDecoration"],[data-testid="stStatusWidget"] {
+    display:none!important;
+}
 .stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"],
-.main,.block-container{padding:0!important;margin:0!important;
-max-width:100%!important;background:#91c9e5!important}
-iframe{border:0!important}
+.main,.block-container {
+    padding:0!important;
+    margin:0!important;
+    max-width:100%!important;
+    background:#9acde9!important;
+}
+iframe {border:0!important;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -26,21 +32,26 @@ html = r"""
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <script type="importmap">
-{"imports":{
-"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-}}
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+ }
+}
 </script>
+
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;
 font-family:Inter,Arial,sans-serif;background:#9acde9;color:#effaff}
 #world{position:fixed;inset:0}
 #world canvas{width:100%;height:100%;display:block}
+
 .glass{
  position:absolute;z-index:4;color:#edfaff;
- background:linear-gradient(145deg,rgba(7,28,45,.84),rgba(9,42,62,.69));
+ background:linear-gradient(145deg,rgba(7,28,45,.82),rgba(9,42,62,.68));
  border:1px solid rgba(150,220,255,.38);
  border-radius:13px;
  box-shadow:0 12px 35px rgba(0,25,45,.24),inset 0 1px rgba(255,255,255,.09);
@@ -120,6 +131,7 @@ border-radius:8px;font-size:10px}
 }
 </style>
 </head>
+
 <body>
 <div id="world"></div>
 <div id="loading">INITIALIZING DIGITAL BRIDGE ENVIRONMENT
@@ -140,25 +152,36 @@ border-radius:8px;font-size:10px}
 
 <div id="left" class="glass">
  <div class="heading">01 / SIMULATION CONTROL</div>
+
  <label>Vehicle weight <output id="weightV">18 t</output></label>
  <input id="weight" type="range" min="5" max="45" value="18">
+
  <label>Vehicle speed <output id="speedV">55 km/h</output></label>
  <input id="speed" type="range" min="10" max="110" value="55">
+
  <label>Number of axles <output id="axleV">3</output></label>
  <input id="axles" type="range" min="2" max="6" value="3">
+
  <label>Traffic volume <output id="trafficV">65%</output></label>
  <input id="traffic" type="range" min="0" max="100" value="65">
 
  <div class="subheading">STRUCTURAL CHANGE SCENARIO</div>
+
  <label>Stiffness change <output id="stiffV">0%</output></label>
  <input id="stiff" type="range" min="0" max="30" value="0">
+
  <label>Local change signal <output id="localV">0%</output></label>
  <input id="local" type="range" min="0" max="100" value="0">
+
  <label>Test location</label>
  <select id="location">
-  <option>Midspan</option><option>North tower</option>
-  <option>South tower</option><option>Deck joint</option><option>Cable zone</option>
+  <option>Midspan</option>
+  <option>North tower</option>
+  <option>South tower</option>
+  <option>Deck joint</option>
+  <option>Cable zone</option>
  </select>
+
  <label>Event trigger sensitivity <output id="triggerV">65%</output></label>
  <input id="trigger" type="range" min="10" max="100" value="65">
 
@@ -168,8 +191,10 @@ border-radius:8px;font-size:10px}
   <option value="primary">Primary sensors only</option>
   <option value="all">All sensors always active</option>
  </select>
+
  <label>Time step <output id="stepV">1.0 s</output></label>
  <input id="step" type="range" min="1" max="10" value="1">
+
  <div class="buttons">
   <button id="run">Ⅱ PAUSE</button>
   <button id="reset" class="secondary">↺ RESET</button>
@@ -182,15 +207,20 @@ border-radius:8px;font-size:10px}
 
 <div id="right" class="glass">
  <div class="heading">02 / LIVE STRUCTURAL TELEMETRY</div>
+
  <div class="metricgrid">
   <div class="metric"><div class="metricname">DECK DEFLECTION</div>
-   <div class="metricvalue" id="deflection">2.40</div><div class="unit">mm · simulated</div></div>
+   <div class="metricvalue" id="deflection">2.40</div>
+   <div class="unit">mm · simulated</div></div>
   <div class="metric"><div class="metricname">STRAIN PROXY</div>
-   <div class="metricvalue" id="strain">118</div><div class="unit">με · simulated</div></div>
+   <div class="metricvalue" id="strain">118</div>
+   <div class="unit">με · simulated</div></div>
   <div class="metric"><div class="metricname">VIBRATION</div>
-   <div class="metricvalue" id="vibration">0.12</div><div class="unit">g · simulated</div></div>
+   <div class="metricvalue" id="vibration">0.12</div>
+   <div class="unit">g · simulated</div></div>
   <div class="metric"><div class="metricname">TEMPERATURE</div>
-   <div class="metricvalue" id="temperature">27.0</div><div class="unit">°C · simulated</div></div>
+   <div class="metricvalue" id="temperature">27.0</div>
+   <div class="unit">°C · simulated</div></div>
  </div>
 
  <div class="subheading">SENSOR NETWORK</div>
@@ -210,7 +240,9 @@ border-radius:8px;font-size:10px}
   <div class="metric"><div class="metricname">PERSISTENCE</div>
    <div class="metricvalue" id="persistence">LOW</div></div>
  </div>
- <div id="alert" class="alert">Normal simulated operating pattern. Primary monitoring active.</div>
+ <div id="alert" class="alert">
+  Normal simulated operating pattern. Primary monitoring active.
+ </div>
 
  <div class="subheading">ADDITIONAL SENSOR READINGS</div>
  <div class="sensor"><span>Tilt estimate</span><b id="tiltValue">0.02°</b></div>
@@ -225,22 +257,33 @@ border-radius:8px;font-size:10px}
 <div id="disclaimer">EDUCATIONAL SIMULATION · NOT A REAL BRIDGE SAFETY SYSTEM</div>
 
 <div id="bottom" class="glass">
- <div><div class="bottomlabel">TRAFFIC / LOAD</div>
+ <div>
+  <div class="bottomlabel">TRAFFIC / LOAD</div>
   <div class="big" id="trafficBig">65%</div>
   <div class="muted">Relative traffic volume</div>
-  <div class="muted" id="count">Vehicles: 1</div></div>
- <div><div class="bottomlabel">STRUCTURAL RESPONSE</div>
+  <div class="muted" id="count">Vehicles: 1</div>
+ </div>
+ <div>
+  <div class="bottomlabel">STRUCTURAL RESPONSE</div>
   <div class="big" id="response">NORMAL</div>
-  <div class="muted" id="responseNote">Within simulated baseline</div></div>
- <div><div class="bottomlabel">SENSOR HISTORY / RESPONSE TREND</div>
+  <div class="muted" id="responseNote">Within simulated baseline</div>
+ </div>
+ <div>
+  <div class="bottomlabel">SENSOR HISTORY / RESPONSE TREND</div>
   <svg id="chart" viewBox="0 0 400 55" preserveAspectRatio="none">
    <polygon id="fill" points="0,52 400,52"/>
    <polyline id="line" points="0,35 400,35"/>
-  </svg><div class="muted">Recent simulated measurements</div></div>
- <div><div class="bottomlabel">SYSTEM ACTIONS</div>
-  <div class="buttons"><button id="export">EXPORT CSV</button>
-  <button id="sensorToggle" class="secondary">HIDE SENSORS</button></div>
-  <div class="muted" id="exportStatus">Live data collection</div></div>
+  </svg>
+  <div class="muted">Recent simulated measurements</div>
+ </div>
+ <div>
+  <div class="bottomlabel">SYSTEM ACTIONS</div>
+  <div class="buttons">
+   <button id="export">EXPORT CSV</button>
+   <button id="sensorToggle" class="secondary">HIDE SENSORS</button>
+  </div>
+  <div class="muted" id="exportStatus">Live data collection</div>
+ </div>
 </div>
 
 <script type="module">
@@ -249,14 +292,17 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {Sky} from 'three/addons/objects/Sky.js';
 
-const root=document.getElementById('world');
+const $ = id => document.getElementById(id);
+const root=$('world');
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x9acde9);
 scene.fog=new THREE.Fog(0x9acde9,650,1900);
-const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,5000);
-camera.position.set(0,100,360);
 
-const renderer=new THREE.WebGLRenderer({antialias:true});
+const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,5000);
+const defaultCamera=new THREE.Vector3(0,105,360);
+camera.position.copy(defaultCamera);
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
@@ -272,15 +318,18 @@ controls.dampingFactor=.055;
 controls.maxPolarAngle=Math.PI*.49;
 controls.minDistance=35;
 controls.maxDistance=850;
-controls.target.set(0,40,0);
+controls.target.set(0,38,0);
 
 scene.add(new THREE.HemisphereLight(0xdaf5ff,0x54725a,2.1));
+
 const sun=new THREE.DirectionalLight(0xfff1d8,3.2);
 sun.position.set(-200,300,140);
 sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-400;sun.shadow.camera.right=400;
-sun.shadow.camera.top=400;sun.shadow.camera.bottom=-400;
+sun.shadow.camera.left=-400;
+sun.shadow.camera.right=400;
+sun.shadow.camera.top=400;
+sun.shadow.camera.bottom=-400;
 scene.add(sun);
 
 const sky=new Sky();
@@ -294,295 +343,614 @@ scene.add(sky);
 
 const water=new THREE.Mesh(
  new THREE.PlaneGeometry(5000,5000),
- new THREE.MeshStandardMaterial({color:0x287d9d,roughness:.22,metalness:.22})
+ new THREE.MeshStandardMaterial({
+  color:0x287d9d,roughness:.22,metalness:.22
+ })
 );
-water.rotation.x=-Math.PI/2;water.position.y=-8;water.receiveShadow=true;
+water.rotation.x=-Math.PI/2;
+water.position.y=-8;
+water.receiveShadow=true;
 scene.add(water);
 
 const landMat=new THREE.MeshStandardMaterial({color:0x64865a,roughness:1});
-for(let i=0;i<18;i++){
+for(let i=0;i<22;i++){
  const hill=new THREE.Mesh(new THREE.SphereGeometry(1,32,20),landMat);
  hill.scale.set(75+(i%4)*22,13+(i%3)*5,42);
- hill.position.set(-500+i*60,-4,i%2===0?-250:280);
+ hill.position.set(-650+i*65,-4,i%2===0?-250:280);
  scene.add(hill);
 }
 
-const bridgeGroup=new THREE.Group();scene.add(bridgeGroup);
-const sensors=new THREE.Group();scene.add(sensors);
-const vehicles=new THREE.Group();scene.add(vehicles);
-let bridgeAxis='x',deckY=35,bridgeLength=300,modelLoaded=false;
-let vehicleObjects=[],showSensors=true,active=true,elapsed=0,history=[],data=[];
+const bridgeGroup=new THREE.Group();
+scene.add(bridgeGroup);
+const sensors=new THREE.Group();
+scene.add(sensors);
+const vehicles=new THREE.Group();
+scene.add(vehicles);
 
-function makeMat(color,roughness=.6,metalness=.2){
+let deckY=35;
+const bridgeLength=300;
+let modelLoaded=false;
+let vehicleObjects=[];
+let showSensors=true;
+let active=true;
+let elapsed=0;
+let history=[];
+let data=[];
+let eventDuration=0;
+let lastValues={};
+let clockSeconds=0;
+
+function mat(color,roughness=.6,metalness=.2){
  return new THREE.MeshStandardMaterial({color,roughness,metalness});
 }
-const concrete=makeMat(0xc4cbd0,.78,.1);
-const steel=makeMat(0x9caeb9,.34,.65);
-const cableMat=makeMat(0xe3edf0,.35,.5);
-const roadMat=makeMat(0x313a42,.9,.05);
-const white=makeMat(0xf4f4e8,.65,.05);
+const concrete=mat(0xc4cbd0,.78,.1);
+const steel=mat(0x9caeb9,.34,.65);
+const cableMat=mat(0xe3edf0,.35,.5);
+const roadMat=mat(0x303941,.9,.05);
+const white=mat(0xf4f4e8,.65,.05);
+const greenMat=new THREE.MeshStandardMaterial({
+ color:0x34f2a2,emissive:0x087d4b,emissiveIntensity:1.5
+});
+const redMat=new THREE.MeshStandardMaterial({
+ color:0xff5267,emissive:0x8d1024,emissiveIntensity:1.5
+});
 
-function box(parent,x,y,z,sx,sy,sz,mat){
- const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat);
- m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
- parent.add(m);return m;
+function box(parent,x,y,z,sx,sy,sz,material){
+ const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);
+ m.position.set(x,y,z);
+ m.castShadow=true;
+ m.receiveShadow=true;
+ parent.add(m);
+ return m;
 }
-function cylinder(parent,a,b,r1,r2,mat,segments=12){
+
+function cylinder(parent,a,b,r1,r2,material,segments=12){
  const d=new THREE.Vector3().subVectors(b,a);
- const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),segments),mat);
+ const m=new THREE.Mesh(
+  new THREE.CylinderGeometry(r1,r2,d.length(),segments),
+  material
+ );
  m.position.copy(a).add(b).multiplyScalar(.5);
  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());
- m.castShadow=true;parent.add(m);return m;
+ m.castShadow=true;
+ parent.add(m);
+ return m;
 }
-function line(parent,a,b,mat,r=.18){
- cylinder(parent,a,b,r,r,mat,8);
-}
+
 function buildFallbackBridge(){
  bridgeGroup.clear();
  const L=300,W=28,Y=35;
+
  box(bridgeGroup,0,Y,0,L,2.4,W,roadMat);
  box(bridgeGroup,0,Y-1.5,0,L,1,W+2,steel);
- for(let z of [-W/2-1,W/2+1]){
+
+ for(const z of [-W/2-1,W/2+1]){
   box(bridgeGroup,0,Y+2,z,L,.45,.65,white);
   box(bridgeGroup,0,Y+4,z,L,.22,.25,steel);
+
   for(let x=-L/2;x<=L/2;x+=12){
    box(bridgeGroup,x,Y+3,z,.25,1.4,.25,steel);
   }
  }
- for(let x=-L/2;x<=L/2;x+=18){
-  box(bridgeGroup,x,Y+1.25,0,.3,.05,W-2,white);
+
+ for(let x=-L/2;x<=L/2;x+=12){
+  box(bridgeGroup,x,Y+1.25,0,.16,.08,W,white);
  }
+
  for(const x of [-65,65]){
-  for(const z of [-7,7]){
-   box(bridgeGroup,x,Y-12,z,5,24,5,concrete);
+  const towerWidth=7;
+  box(bridgeGroup,x,Y+42,0,towerWidth,84,5,concrete);
+  box(bridgeGroup,x,Y+84,0,12,3,8,steel);
+  box(bridgeGroup,x,Y+48,0,10,3,8,concrete);
+
+  for(const z of [-3.5,3.5]){
+   cylinder(
+    bridgeGroup,
+    new THREE.Vector3(x,Y+4,z),
+    new THREE.Vector3(x,Y+85,z),
+    .7,.7,concrete,16
+   );
   }
-  const top=Y+100;
-  const base=new THREE.Vector3(x,Y+2,0);
-  const apex=new THREE.Vector3(x,Y+100,0);
-  const left=new THREE.Vector3(x-7,Y+2,0);
-  const right=new THREE.Vector3(x+7,Y+2,0);
-  line(bridgeGroup,left,apex,concrete,2.7);
-  line(bridgeGroup,right,apex,concrete,2.7);
-  line(bridgeGroup,apex,new THREE.Vector3(x,Y+2,0),concrete,2.4);
-  for(let i=0;i<11;i++){
-   const t=(i+1)/12;
-   const px=x+(t-.5)*100;
-   const deckPoint=new THREE.Vector3(px,Y+2,0);
-   const towerPoint=new THREE.Vector3(x,Y+98-t*12,0);
-   line(bridgeGroup,deckPoint,towerPoint,cableMat,.16);
-   const deckPoint2=new THREE.Vector3(px,Y+2,0);
-   const towerPoint2=new THREE.Vector3(x,Y+98-t*12,0);
-   line(bridgeGroup,deckPoint2,towerPoint2,cableMat,.16);
+
+  for(let side of [-1,1]){
+   for(let i=0;i<10;i++){
+    const dx=(i+1)*10;
+    const anchorX=x+side*dx;
+    const anchorY=Y+3;
+    const towerY=Y+75-i*4.6;
+
+    cylinder(
+     bridgeGroup,
+     new THREE.Vector3(x,Y+towerY-Y,0),
+     new THREE.Vector3(anchorX,anchorY,side*8),
+     .09,.09,cableMat,8
+    );
+   }
   }
  }
- for(let i=0;i<14;i++){
-  const x=-145+i*22;
-  box(bridgeGroup,x,Y-3,0,1.2,5,W,steel);
+
+ for(let x=-140;x<=140;x+=20){
+  for(const z of [-13,13]){
+   box(bridgeGroup,x,Y+2.7,z,.4,.35,.4,steel);
+  }
  }
- deckY=Y;
- bridgeLength=L;
+
+ const supports=mat(0x586b75,.8,.1);
+ for(const x of [-145,145]){
+  box(bridgeGroup,x,Y-13,0,5,25,34,supports);
+ }
 }
-function centerModel(model){
- const box3=new THREE.Box3().setFromObject(model);
- const size=new THREE.Vector3(),center=new THREE.Vector3();
- box3.getSize(size);box3.getCenter(center);
- bridgeAxis=size.x>=size.z?'x':'z';
- bridgeLength=Math.max(size.x,size.z);
- const scale=300/Math.max(bridgeLength,1);
- model.scale.setScalar(scale);
- model.position.sub(center.multiplyScalar(scale));
- model.position.y+=20;
- model.traverse(o=>{
-  if(o.isMesh){o.castShadow=true;o.receiveShadow=true;
-   if(o.material)o.material.side=THREE.DoubleSide;}
- });
- const b=new THREE.Box3().setFromObject(model);
- const s=new THREE.Vector3();b.getSize(s);
- deckY=b.min.y+s.y*.28;
- bridgeGroup.add(model);
- controls.target.set(0,deckY+12,0);
- camera.position.set(0,deckY+100,340);
- controls.update();
+
+function normalizeModel(model){
+ const bounds=new THREE.Box3().setFromObject(model);
+ const size=bounds.getSize(new THREE.Vector3());
+ const center=bounds.getCenter(new THREE.Vector3());
+
+ // Rotate the model so its longest horizontal dimension follows X.
+ if(size.z>size.x && size.z>=size.y){
+  model.rotation.y=Math.PI/2;
+  model.updateMatrixWorld(true);
+ }
+
+ let b=new THREE.Box3().setFromObject(model);
+ let s=b.getSize(new THREE.Vector3());
+ let c=b.getCenter(new THREE.Vector3());
+
+ const longest=Math.max(s.x,s.y,s.z);
+ const scale=300/longest;
+ model.scale.multiplyScalar(scale);
+ model.updateMatrixWorld(true);
+
+ b.setFromObject(model);
+ s=b.getSize(new THREE.Vector3());
+ c=b.getCenter(new THREE.Vector3());
+
+ model.position.x-=c.x;
+ model.position.z-=c.z;
+ model.position.y-=b.min.y-0;
+ model.updateMatrixWorld(true);
+
+ // Estimate a useful deck-level sensor height from the model.
+ deckY=Math.max(8,Math.min(65,s.y*.28));
 }
-function addSensor(x,y,z,color=0x48e9aa,size=.9){
- const m=new THREE.Mesh(new THREE.SphereGeometry(size,14,14),
- new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:1.8}));
- m.position.set(x,y,z);sensors.add(m);
- const halo=new THREE.Mesh(new THREE.SphereGeometry(size*2.3,12,12),
- new THREE.MeshBasicMaterial({color,transparent:true,opacity:.13}));
- halo.position.copy(m.position);sensors.add(halo);
+
+function addFallback(){
+ buildFallbackBridge();
+ deckY=35;
+ modelLoaded=false;
 }
-function buildSensors(){
+
+function loadBridge(){
+ const url=
+ 'https://raw.githubusercontent.com/experimentscience/bridge-monitoring-stem/main/assets/cable-stayed-bridge.glb';
+
+ const loader=new GLTFLoader();
+
+ loader.load(
+  url,
+  gltf=>{
+   bridgeGroup.clear();
+   const model=gltf.scene;
+
+   model.traverse(obj=>{
+    if(obj.isMesh){
+     obj.castShadow=true;
+     obj.receiveShadow=true;
+     if(obj.material){
+      obj.material.side=THREE.DoubleSide;
+     }
+    }
+   });
+
+   normalizeModel(model);
+   bridgeGroup.add(model);
+   modelLoaded=true;
+   createSensorNetwork();
+   $('loading').style.display='none';
+   toast('3D bridge model loaded');
+  },
+  undefined,
+  error=>{
+   console.error('Bridge model loading failed:',error);
+   addFallback();
+   createSensorNetwork();
+   $('loading').style.display='none';
+   toast('Using built-in bridge model: GLB could not load');
+  }
+ );
+}
+
+function createSensorNetwork(){
  sensors.clear();
- for(let i=0;i<34;i++){
-  const p=(i/33-.5)*bridgeLength*.85;
-  if(bridgeAxis==='x'){addSensor(p,deckY+2,0);addSensor(p,deckY+2,9,0x62caff);}
-  else{addSensor(0,deckY+2,p);addSensor(9,deckY+2,p,0x62caff);}
+
+ for(let i=0;i<11;i++){
+  const x=-135+i*27;
+  for(const z of [-10,10]){
+   const base=new THREE.Mesh(
+    new THREE.SphereGeometry(1.25,12,12),greenMat
+   );
+   base.position.set(x,deckY+2,z);
+   base.userData.kind='primary';
+   sensors.add(base);
+  }
  }
- for(let i=0;i<18;i++){
-  const p=(i/17-.5)*bridgeLength*.8;
-  if(bridgeAxis==='x')addSensor(p,deckY+3,-10,0xff665e);
-  else addSensor(-10,deckY+3,p,0xff665e);
- }
+
+ const extraPositions=[
+  [-95,deckY+12,-8],[-65,deckY+15,8],
+  [-30,deckY+8,-8],[0,deckY+12,8],
+  [30,deckY+8,-8],[65,deckY+15,8],
+  [95,deckY+12,-8]
+ ];
+
+ extraPositions.forEach(p=>{
+  const s=new THREE.Mesh(
+   new THREE.SphereGeometry(1.55,14,14),redMat
+  );
+  s.position.set(...p);
+  s.userData.kind='extra';
+  s.visible=false;
+  sensors.add(s);
+ });
+
  sensors.visible=showSensors;
 }
-function vehicle(){
- const g=new THREE.Group();
- const body=new THREE.Mesh(new THREE.BoxGeometry(10,3.4,4.5),makeMat(0xe6ecef,.32,.45));
- body.position.y=3;body.castShadow=true;g.add(body);
- const cabin=new THREE.Mesh(new THREE.BoxGeometry(4,2.6,4.2),makeMat(0x8db7c8,.2,.45));
- cabin.position.set(-2,5.8,0);g.add(cabin);
- const wheelMat=makeMat(0x1a252c,.9,0);
- for(const x of [-3.5,3.5])for(const z of [-2.15,2.15]){
-  const w=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.55,20),wheelMat);
-  w.rotation.x=Math.PI/2;w.position.set(x,1.2,z);g.add(w);
+
+function createVehicle(color=0x3d86c5){
+ const group=new THREE.Group();
+ const body=mat(color,.35,.35);
+ const glass=mat(0x9ccbd8,.2,.45);
+ const dark=mat(0x202a31,.7,.1);
+
+ box(group,0,2,0,9,3.2,4.2,body);
+ box(group,1,4.3,0,4.5,2.2,3.8,glass);
+
+ for(const x of [-3,3]){
+  for(const z of [-2.2,2.2]){
+   const wheel=new THREE.Mesh(
+    new THREE.CylinderGeometry(1,1,.55,16),
+    dark
+   );
+   wheel.rotation.x=Math.PI/2;
+   wheel.position.set(x,1,z);
+   group.add(wheel);
+  }
  }
- vehicles.add(g);vehicleObjects.push({mesh:g,p:Math.random()*.3});
- document.getElementById('count').textContent='Vehicles: '+vehicleObjects.length;
-}
-vehicle();
 
-function toast(t){
- const e=document.getElementById('toast');e.textContent=t;e.style.display='block';
- setTimeout(()=>e.style.display='none',2000);
+ group.userData.progress=Math.random()*.45;
+ group.userData.speed=.055+Math.random()*.025;
+ vehicles.add(group);
+ vehicleObjects.push(group);
+ return group;
 }
-function val(id){return +document.getElementById(id).value}
-function put(id,v){document.getElementById(id).textContent=v}
-function labels(){
- put('weightV',val('weight')+' t');put('speedV',val('speed')+' km/h');
- put('axleV',val('axles'));put('trafficV',val('traffic')+'%');
- put('stiffV',val('stiff')+'%');put('localV',val('local')+'%');
- put('triggerV',val('trigger')+'%');put('stepV',(val('step')/10).toFixed(1)+' s');
- put('trafficBig',val('traffic')+'%');
+
+function addVehicle(){
+ createVehicle([0x3d86c5,0xe1a24a,0x738d9c,0x4d9b82][
+  Math.floor(Math.random()*4)
+ ]);
+ updateVehicleCount();
+ toast('Vehicle added to simulation');
 }
-['weight','speed','axles','traffic','stiff','local','trigger','step'].forEach(id=>{
- document.getElementById(id).addEventListener('input',labels);
+
+function updateVehicleCount(){
+ $('count').textContent='Vehicles: '+vehicleObjects.length;
+}
+
+function toast(message){
+ const el=$('toast');
+ el.textContent=message;
+ el.style.display='block';
+ clearTimeout(toast.timer);
+ toast.timer=setTimeout(()=>el.style.display='none',2400);
+}
+
+function resetCamera(){
+ camera.position.copy(defaultCamera);
+ controls.target.set(0,38,0);
+ controls.update();
+}
+
+function value(id){
+ return Number($(id).value);
+}
+
+function updateLabels(){
+ $('weightV').textContent=value('weight')+' t';
+ $('speedV').textContent=value('speed')+' km/h';
+ $('axleV').textContent=value('axles');
+ $('trafficV').textContent=value('traffic')+'%';
+ $('stiffV').textContent=value('stiff')+'%';
+ $('localV').textContent=value('local')+'%';
+ $('triggerV').textContent=value('trigger')+'%';
+ $('stepV').textContent=(value('step')/1).toFixed(1)+' s';
+ $('trafficBig').textContent=value('traffic')+'%';
+}
+
+document.querySelectorAll('input[type=range],select').forEach(el=>{
+ el.addEventListener('input',updateLabels);
+ el.addEventListener('change',updateLabels);
 });
-labels();
 
-function drawHistory(v){
- history.push(v);if(history.length>60)history.shift();
- const pts=history.map((n,i)=>(i/(Math.max(1,history.length-1))*400)+','+
- (49-Math.min(n/40,1)*43)).join(' ');
- document.getElementById('line').setAttribute('points',pts);
- document.getElementById('fill').setAttribute('points','0,52 '+pts+' 400,52');
-}
-function simulate(){
- const w=val('weight')/45,s=val('speed')/110,t=val('traffic')/100;
- const change=val('stiff')/30*.75+val('local')/100*.55;
- const temporary=w*s*t;
- const deviation=change*100+temporary*3;
- const score=Math.min(100,deviation*1.4);
- const mode=document.getElementById('monitor').value;
- const extra=mode==='all'||(mode==='adaptive'&&score>=val('trigger'));
- const def=.7+temporary*4.4+change*5.2;
- const strain=72+temporary*110+change*180;
- const vib=.03+temporary*.34+change*.2;
- put('deflection',def.toFixed(2));put('strain',strain.toFixed(0));
- put('vibration',vib.toFixed(2));put('temperature',(27+Math.sin(elapsed/25)*1.5).toFixed(1));
- put('deviation',deviation.toFixed(1)+'%');
- put('persistence',change>.3?'ELEVATED':change>.08?'MODERATE':'LOW');
- put('extra',extra?'66 ACTIVE':'66 STANDBY');
- put('mode',extra?'ADAPTIVE ATTENTION ACTIVE':mode==='all'?'ALL SENSORS ACTIVE':'CONTINUOUS MONITORING');
+function updateSensorState(event){
+ const mode=$('monitor').value;
+ const extraOn=
+  mode==='all' ||
+  (mode==='adaptive' && event);
+
+ $('extra').textContent=extraOn?'66 ACTIVE':'66 STANDBY';
+ $('extra').className=extraOn?'on':'off';
+
  ['tilt','acoustic','joint'].forEach(id=>{
-  put(id,extra?'ACTIVE':'STANDBY');
-  document.getElementById(id).className=extra?'on':'off';
+  $(id).textContent=extraOn?'ACTIVE':'STANDBY';
+  $(id).className=extraOn?'on':'off';
  });
- document.getElementById('extra').className=extra?'on':'off';
- put('tiltValue',(0.02+change*.6).toFixed(2)+'°');
- put('corrosion',change>.6?'Elevated proxy':'Low');
- put('crack',(change*.28).toFixed(2)+' mm');
- put('acousticValue',extra?'Elevated':'Low');
- put('jointValue',(0.3+change*1.4).toFixed(2)+' mm');
- const alert=document.getElementById('alert');
- if(change>.3){
+
+ sensors.children.forEach(s=>{
+  if(s.userData.kind==='extra'){
+   s.visible=showSensors && extraOn;
+  }
+ });
+}
+
+function updateChart(){
+ const points=history.slice(-70);
+ if(points.length<2)return;
+
+ const max=Math.max(1,...points);
+ const min=0;
+ const coords=points.map((v,i)=>{
+  const x=i/(points.length-1)*400;
+  const y=49-(v-min)/(max-min)*42;
+  return `${x.toFixed(1)},${y.toFixed(1)}`;
+ });
+
+ $('line').setAttribute('points',coords.join(' '));
+ $('fill').setAttribute(
+  'points',
+  `0,52 ${coords.join(' ')} 400,52`
+ );
+}
+
+function recordRow(values){
+ data.push({
+  time:elapsed.toFixed(1),
+  traffic:value('traffic'),
+  vehicle_weight:value('weight'),
+  vehicle_speed:value('speed'),
+  deflection:values.deflection.toFixed(3),
+  strain:values.strain.toFixed(2),
+  vibration:values.vibration.toFixed(3),
+  temperature:values.temperature.toFixed(2),
+  deviation:values.deviation.toFixed(2),
+  event:values.event?'1':'0',
+  persistence:values.persistence
+ });
+
+ if(data.length>5000)data.shift();
+}
+
+function updateSimulation(dt){
+ const traffic=value('traffic')/100;
+ const weight=value('weight');
+ const stiffness=value('stiff');
+ const local=value('local');
+ const sensitivity=value('trigger')/100;
+ const mode=$('monitor').value;
+
+ const load=traffic*(.35+weight/45);
+ const wave=Math.sin(elapsed*2.1);
+ const vibrationBase=.035+load*.13+Math.abs(wave)*.025;
+ const deflectionBase=1.2+load*2.4;
+ const strainBase=70+load*90;
+
+ // A temporary vehicle-load response changes with traffic.
+ // Structural-change controls add a persistent simulated signal.
+ const structuralSignal=stiff*.075+local*.045;
+ const deflection=deflectionBase+structuralSignal+
+  Math.abs(wave)*load*.4;
+ const strain=strainBase+stiff*2.4+local*.8+
+  Math.sin(elapsed*1.8)*load*8;
+ const vibration=vibrationBase+local*.002+
+  Math.abs(Math.sin(elapsed*3.2))*.018;
+ const temperature=27+Math.sin(elapsed*.025)*1.4;
+
+ const deviation=Math.min(
+  100,
+  Math.max(0,structuralSignal*3.2+local*.16+stiff*.11)
+ );
+
+ const eventScore=
+  (vibration-.08)*240+
+  structuralSignal*.55+
+  traffic*.22;
+
+ const event=mode==='all' ||
+  (mode==='adaptive' && eventScore>sensitivity);
+
+ if(event)eventDuration+=dt;
+ else eventDuration=Math.max(0,eventDuration-dt*.65);
+
+ const persistence=
+  deviation>12 && eventDuration>12?'HIGH':
+  deviation>5 && eventDuration>5?'MODERATE':'LOW';
+
+ updateSensorState(event);
+
+ $('deflection').textContent=deflection.toFixed(2);
+ $('strain').textContent=strain.toFixed(0);
+ $('vibration').textContent=vibration.toFixed(3);
+ $('temperature').textContent=temperature.toFixed(1);
+ $('deviation').textContent=deviation.toFixed(1)+'%';
+ $('persistence').textContent=persistence;
+
+ $('tiltValue').textContent=(.02+local*.004).toFixed(2)+'°';
+ $('corrosion').textContent=local>65?'Elevated proxy':'Low';
+ $('crack').textContent=(local*.002).toFixed(2)+' mm';
+ $('acousticValue').textContent=event?'Elevated':'Low';
+ $('jointValue').textContent=(.30+local*.008).toFixed(2)+' mm';
+
+ const alert=$('alert');
+ if(persistence==='HIGH'){
   alert.className='alert warning';
-  alert.textContent='Persistent-change scenario detected. Additional sensor attention: '+(extra?'ACTIVE':'INACTIVE')+'.';
-  put('response','CHANGE');put('responseNote','Simulated response differs from baseline');
- }else if(temporary>.4){
+  alert.textContent=
+   'Persistent simulated deviation detected. Additional sensor attention remains active for investigation.';
+ }else if(event){
   alert.className='alert';
-  alert.textContent='Elevated temporary traffic-load response. Comparing against baseline.';
-  put('response','LOAD');put('responseNote','Temporary load response in simulation');
+  alert.textContent=
+   'Event trigger activated. Additional sensor measurements are being collected.';
  }else{
   alert.className='alert';
-  alert.textContent='Normal simulated operating pattern. Primary monitoring active.';
-  put('response','NORMAL');put('responseNote','Within simulated baseline');
+  alert.textContent=
+   'Normal simulated operating pattern. Primary monitoring active.';
  }
- drawHistory(def);
- data.push({time:elapsed,weight:val('weight'),speed:val('speed'),traffic:val('traffic'),
- deflection:def,strain,vibration:vib,temperature:27+Math.sin(elapsed/25)*1.5,
- deviation,additionalSensors:extra,stiffness:val('stiff'),localChange:val('local')});
- if(data.length>2000)data.shift();
-}
-document.getElementById('run').onclick=()=>{
- active=!active;put('run',active?'Ⅱ PAUSE':'▶ RUN');
- toast(active?'Simulation resumed':'Simulation paused');
-};
-document.getElementById('reset').onclick=()=>{
- elapsed=0;history=[];data=[];
- document.getElementById('stiff').value=0;document.getElementById('local').value=0;
- labels();simulate();toast('Simulation reset');
-};
-document.getElementById('addVehicle').onclick=()=>{vehicle();toast('Vehicle added')};
-document.getElementById('camera').onclick=()=>{
- camera.position.set(0,deckY+100,340);
- controls.target.set(0,deckY+12,0);controls.update();
-};
-document.getElementById('sensorToggle').onclick=()=>{
- showSensors=!showSensors;sensors.visible=showSensors;
- put('sensorToggle',showSensors?'HIDE SENSORS':'SHOW SENSORS');
-};
-document.getElementById('export').onclick=()=>{
- if(!data.length){toast('Run simulation first');return;}
- const keys=Object.keys(data[0]);
- const csv=[keys.join(','),...data.map(r=>keys.map(k=>r[k]).join(','))].join('\n');
- const a=document.createElement('a');
- a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
- a.download='bridge-monitoring-data.csv';a.click();
- put('exportStatus','CSV exported');
-};
 
-const MODEL='https://raw.githubusercontent.com/experimentscience/bridge-monitoring-stem/main/assets/cable-stayed-bridge.glb';
-new GLTFLoader().load(MODEL,gltf=>{
- centerModel(gltf.scene);modelLoaded=true;buildSensors();
- document.getElementById('loading').style.display='none';
- toast('Bridge model loaded');
-},xhr=>{
- if(xhr.total)document.querySelector('#loading').innerHTML=
- 'LOADING 3D BRIDGE · '+Math.round(xhr.loaded/xhr.total*100)+'%';
-},err=>{
- console.error(err);
- buildFallbackBridge();buildSensors();
- document.getElementById('loading').style.display='none';
- toast('Using generated bridge scene: external model unavailable');
+ $('mode').textContent=
+  mode==='adaptive'?'ADAPTIVE ATTENTION':
+  mode==='all'?'ALL SENSORS ACTIVE':'PRIMARY ONLY';
+
+ $('response').textContent=
+  persistence==='HIGH'?'PERSISTENT CHANGE':
+  event?'EVENT DETECTED':'NORMAL';
+
+ $('responseNote').textContent=
+  persistence==='HIGH'?'Deviation remains elevated':
+  event?'Additional sensors activated':'Within simulated baseline';
+
+ history.push(deviation+load*1.8);
+ if(history.length>70)history.shift();
+ updateChart();
+
+ const values={
+  deflection,strain,vibration,temperature,deviation,
+  event,persistence
+ };
+
+ lastValues=values;
+ if(Math.floor(elapsed*2)!==Math.floor((elapsed-dt)*2)){
+  recordRow(values);
+ }
+}
+
+function animateVehicles(dt){
+ const speed=value('speed');
+ const speedFactor=speed/55;
+
+ vehicleObjects.forEach(v=>{
+  v.userData.progress+=dt*.035*speedFactor*v.userData.speed/.065;
+  if(v.userData.progress>1.1){
+   v.userData.progress=-.1;
+  }
+
+  const p=v.userData.progress;
+  v.position.set(-145+p*290,deckY+2,0);
+ });
+}
+
+function updateClock(){
+ clockSeconds+=1;
+ const h=String(Math.floor(clockSeconds/3600)).padStart(2,'0');
+ const m=String(Math.floor(clockSeconds%3600/60)).padStart(2,'0');
+ const s=String(clockSeconds%60).padStart(2,'0');
+ $('clock').textContent=`${h}:${m}:${s}`;
+}
+
+let lastTime=performance.now();
+let clockAccumulator=0;
+
+function animate(now){
+ requestAnimationFrame(animate);
+ const realDt=Math.min((now-lastTime)/1000,.05);
+ lastTime=now;
+
+ if(active){
+  const step=value('step');
+  const dt=realDt*step;
+  elapsed+=dt;
+  animateVehicles(dt);
+  updateSimulation(dt);
+  clockAccumulator+=realDt;
+  if(clockAccumulator>=1){
+   updateClock();
+   clockAccumulator=0;
+  }
+ }
+
+ controls.update();
+ renderer.render(scene,camera);
+}
+
+$('run').addEventListener('click',()=>{
+ active=!active;
+ $('run').textContent=active?'Ⅱ PAUSE':'▶ RESUME';
 });
 
-const clock=new THREE.Clock();
-function animate(){
- requestAnimationFrame(animate);
- const dt=Math.min(clock.getDelta(),.05);
- if(active){
-  elapsed+=dt;
-  vehicleObjects.forEach(v=>{
-   v.p+=dt*(val('speed')/110)*.08;
-   if(v.p>1.1)v.p=-.1;
-   const p=(v.p-.5)*bridgeLength*.82;
-   if(bridgeAxis==='x'){v.mesh.position.set(p,deckY+.5,0);v.mesh.rotation.y=0}
-   else{v.mesh.position.set(0,deckY+.5,p);v.mesh.rotation.y=Math.PI/2}
-  });
-  if(Math.floor(elapsed*2)!==Math.floor((elapsed-dt)*2))simulate();
+$('reset').addEventListener('click',()=>{
+ elapsed=0;
+ eventDuration=0;
+ history=[];
+ data=[];
+ vehicleObjects.forEach(v=>vehicles.remove(v));
+ vehicleObjects=[];
+ createVehicle();
+ updateVehicleCount();
+ $('stiff').value=0;
+ $('local').value=0;
+ $('traffic').value=65;
+ $('weight').value=18;
+ $('speed').value=55;
+ $('axles').value=3;
+ $('trigger').value=65;
+ $('step').value=1;
+ $('monitor').value='adaptive';
+ updateLabels();
+ updateSensorState(false);
+ toast('Simulation reset');
+});
+
+$('addVehicle').addEventListener('click',addVehicle);
+$('camera').addEventListener('click',resetCamera);
+
+$('sensorToggle').addEventListener('click',()=>{
+ showSensors=!showSensors;
+ sensors.visible=showSensors;
+ $('sensorToggle').textContent=
+  showSensors?'HIDE SENSORS':'SHOW SENSORS';
+});
+
+$('export').addEventListener('click',()=>{
+ if(!data.length){
+  toast('No measurements recorded yet');
+  return;
  }
- put('clock',new Date(Math.floor(elapsed)*1000).toISOString().slice(11,19));
- controls.update();renderer.render(scene,camera);
-}
-simulate();animate();
-addEventListener('resize',()=>{
- camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+
+ const headers=Object.keys(data[0]);
+ const rows=data.map(row=>
+  headers.map(h=>JSON.stringify(row[h])).join(',')
+ );
+ const csv=[headers.join(','),...rows].join('\n');
+ const blob=new Blob([csv],{type:'text/csv'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;
+ a.download='bridge-monitoring-data.csv';
+ a.click();
+ URL.revokeObjectURL(url);
+ $('exportStatus').textContent=data.length+' records exported';
+});
+
+window.addEventListener('resize',()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
  renderer.setSize(innerWidth,innerHeight);
 });
+
+updateLabels();
+createVehicle();
+updateVehicleCount();
+loadBridge();
+requestAnimationFrame(animate);
 </script>
 </body>
 </html>
 """
 
-components.html(html, height=1050, scrolling=False)
+components.html(html, height=1000, scrolling=False)
