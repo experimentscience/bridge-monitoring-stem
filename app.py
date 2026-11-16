@@ -13,336 +13,159 @@ st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"],
 [data-testid="stMain"], [data-testid="stMainBlockContainer"],
-[data-testid="stVerticalBlock"], .stApp {
+[data-testid="stVerticalBlock"] {
     margin: 0 !important;
     padding: 0 !important;
-    max-width: 100% !important;
-    background: #07121b !important;
+    background: #07131d !important;
 }
 [data-testid="stHeader"], [data-testid="stToolbar"],
 [data-testid="stSidebar"], footer {
     display: none !important;
 }
-iframe {
-    display: block;
-    border: 0 !important;
-}
+iframe { border: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-html = r"""
+HTML = r"""
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 * { box-sizing:border-box; }
-html, body {
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    font-family:Inter,Arial,sans-serif;
-    background:#86b8d8;
-    color:white;
+html,body,#scene {
+    margin:0;width:100%;height:100%;
+    overflow:hidden;font-family:Arial,sans-serif;
 }
-#scene {
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    z-index:0;
-}
+body { background:#8bbbd3;color:white; }
+#scene { position:fixed;inset:0;z-index:0; }
 canvas { display:block; }
 
 .glass {
-    background:linear-gradient(145deg,
-        rgba(12,28,43,.80),
-        rgba(13,37,54,.57));
-    border:1px solid rgba(210,238,255,.25);
-    box-shadow:0 12px 40px rgba(0,0,0,.20),
-               inset 0 1px rgba(255,255,255,.12);
+    background:linear-gradient(135deg,
+        rgba(10,27,42,.82),rgba(13,43,60,.58));
+    border:1px solid rgba(210,240,255,.24);
+    border-radius:13px;
     backdrop-filter:blur(18px);
     -webkit-backdrop-filter:blur(18px);
-    border-radius:13px;
+    box-shadow:0 12px 35px #06152255,
+        inset 0 1px 0 #ffffff20;
 }
-#topbar {
-    position:absolute;
-    z-index:5;
-    top:15px;
-    left:18px;
-    right:18px;
-    height:64px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 20px;
+#header {
+    position:absolute;z-index:5;top:15px;left:18px;right:18px;
+    height:65px;padding:0 20px;
+    display:flex;align-items:center;justify-content:space-between;
 }
-.brand {
-    display:flex;
-    align-items:center;
-    gap:13px;
-}
+.brand { display:flex;align-items:center;gap:13px; }
 .logo {
-    width:38px;
-    height:38px;
-    border-radius:10px;
-    display:grid;
-    place-items:center;
-    background:rgba(72,183,220,.2);
-    border:1px solid rgba(120,220,255,.4);
-    font-size:20px;
+    width:39px;height:39px;border-radius:10px;
+    display:grid;place-items:center;font-size:21px;
+    background:#42bce533;border:1px solid #7adcf077;
 }
-.brand h1 {
-    font-size:16px;
-    margin:0;
-    letter-spacing:1.2px;
-    font-weight:700;
+h1 { font-size:15px;letter-spacing:1.3px;margin:0; }
+.sub { font-size:9px;color:#a8cbdc;letter-spacing:1.7px;margin-top:5px; }
+.status { font-size:10px;color:#d7eaf4;letter-spacing:1px; }
+.dot {
+    display:inline-block;width:7px;height:7px;
+    background:#4de7a1;border-radius:50%;
+    box-shadow:0 0 10px #4de7a1;margin-right:7px;
 }
-.brand small {
-    display:block;
-    color:#a8c7d8;
-    margin-top:4px;
-    font-size:10px;
-    letter-spacing:1.5px;
+.panel {
+    position:absolute;z-index:5;top:96px;
+    padding:17px;width:258px;
 }
-.topstatus {
-    display:flex;
-    align-items:center;
-    gap:22px;
-    font-size:11px;
-    color:#d3e8f5;
+#left { left:18px; }
+#right { right:18px;width:280px; }
+.heading {
+    font-size:10px;letter-spacing:1.5px;
+    color:#a9d8eb;font-weight:bold;margin-bottom:15px;
 }
-.statusdot {
-    width:8px;height:8px;border-radius:50%;
-    display:inline-block;margin-right:7px;
-    background:#4de4a1;
-    box-shadow:0 0 12px #4de4a1;
+.label {
+    font-size:9px;letter-spacing:1.1px;
+    color:#8fb7ca;text-transform:uppercase;margin:13px 0 9px;
 }
-#left {
-    position:absolute;
-    z-index:5;
-    top:94px;
-    left:18px;
-    width:260px;
-    padding:17px;
-}
-#right {
-    position:absolute;
-    z-index:5;
-    top:94px;
-    right:18px;
-    width:285px;
-    padding:17px;
-}
-.paneltitle {
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:1.6px;
-    color:#a9d8ec;
-    margin-bottom:15px;
-    text-transform:uppercase;
-}
-.section {
-    border-top:1px solid rgba(255,255,255,.12);
-    padding-top:13px;
-    margin-top:13px;
-}
-.sectionlabel {
-    color:#9bb8c9;
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    margin-bottom:10px;
-}
-.control {
-    margin:12px 0;
-}
+.control { margin:12px 0; }
 .controlhead {
-    display:flex;
-    justify-content:space-between;
-    font-size:11px;
-    margin-bottom:7px;
-    color:#d9e9f2;
+    display:flex;justify-content:space-between;
+    font-size:10px;margin-bottom:6px;color:#d7e8f1;
 }
-.controlhead strong { color:#fff; }
-input[type=range] {
-    width:100%;
-    accent-color:#42c7e8;
-    cursor:pointer;
+.controlhead strong { color:white; }
+input[type=range] { width:100%;accent-color:#42c8e8; }
+select,button {
+    width:100%;padding:9px;border-radius:7px;
+    color:white;background:#102d40;
+    border:1px solid #b5d9e344;font-size:10px;
 }
-select, button {
-    font-family:inherit;
+button { cursor:pointer;margin-top:7px; }
+button:hover { background:#1c536b; }
+.separator {
+    border-top:1px solid #ffffff20;
+    margin-top:14px;padding-top:10px;
 }
-select {
-    width:100%;
-    padding:9px;
-    color:#eaf7ff;
-    background:rgba(4,17,28,.8);
-    border:1px solid rgba(180,220,240,.25);
-    border-radius:7px;
-    outline:none;
-}
-button {
-    border:1px solid rgba(135,220,250,.3);
-    background:rgba(38,151,190,.19);
-    color:#e8f8ff;
-    border-radius:7px;
-    padding:9px 11px;
-    cursor:pointer;
-    font-size:10px;
-    letter-spacing:.4px;
-}
-button:hover {
-    background:rgba(45,181,220,.34);
-}
-.primary {
-    width:100%;
-    margin-top:8px;
-    background:rgba(30,160,190,.35);
-}
-.metricgrid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:9px;
+.grid {
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;
 }
 .metric {
-    padding:12px;
-    border-radius:9px;
-    background:rgba(255,255,255,.055);
-    border:1px solid rgba(255,255,255,.10);
+    background:#ffffff0b;border:1px solid #ffffff15;
+    border-radius:8px;padding:11px;
 }
 .metric small {
-    display:block;
-    color:#9db9c9;
-    font-size:9px;
-    letter-spacing:.8px;
-    text-transform:uppercase;
+    display:block;font-size:8px;letter-spacing:1px;
+    color:#9db9c9;text-transform:uppercase;
 }
-.metric strong {
-    display:block;
-    margin-top:7px;
-    font-size:20px;
-    font-weight:600;
-}
-.metric em {
-    display:block;
-    font-style:normal;
-    color:#8faebe;
-    font-size:9px;
-    margin-top:4px;
-}
-.green { color:#62e8a7; }
-.blue { color:#70d7f5; }
-.orange { color:#ffc47b; }
+.metric strong { display:block;font-size:20px;margin-top:7px; }
+.metric em { display:block;font-size:8px;color:#8daebe;margin-top:3px;font-style:normal; }
+.blue { color:#75dcf7; }
+.green { color:#65e8a7; }
+.orange { color:#ffc17c; }
 .red { color:#ff7777; }
-.sensorrow {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:9px 0;
-    border-bottom:1px solid rgba(255,255,255,.09);
-    font-size:10px;
-}
-.sensorname {
-    display:flex;align-items:center;gap:8px;
-}
-.sensordot {
-    width:7px;height:7px;border-radius:50%;
-    background:#4de6a0;
-    box-shadow:0 0 9px #4de6a0;
-}
-.sensordot.extra {
-    background:#ff6b64;
-    box-shadow:0 0 9px #ff6b64;
-}
-#bottom {
-    position:absolute;
-    z-index:5;
-    bottom:15px;
-    left:18px;
-    right:18px;
-    min-height:95px;
-    display:grid;
-    grid-template-columns:1.2fr 1fr 1fr 1.3fr;
-    gap:0;
-    padding:13px 18px;
-}
-.bottomcell {
-    padding:2px 17px;
-    border-right:1px solid rgba(255,255,255,.13);
-}
-.bottomcell:last-child { border:0; }
-.bottomlabel {
-    color:#9dbdce;
+.sensor {
+    display:flex;justify-content:space-between;
+    padding:9px 0;border-bottom:1px solid #ffffff12;
     font-size:9px;
-    letter-spacing:1.2px;
-    text-transform:uppercase;
 }
-.bottomvalue {
-    font-size:17px;
-    margin-top:9px;
-    font-weight:600;
+.sensor i {
+    display:inline-block;width:7px;height:7px;
+    background:#4be7a0;border-radius:50%;margin-right:7px;
+    box-shadow:0 0 8px #4be7a0;
 }
-.bottomsub {
-    font-size:9px;color:#a4c0cf;margin-top:5px;
+.sensor i.extra { background:#ff655f;box-shadow:0 0 8px #ff655f; }
+#bottom {
+    position:absolute;z-index:5;left:18px;right:18px;bottom:15px;
+    min-height:83px;padding:13px 18px;
+    display:grid;grid-template-columns:repeat(4,1fr);
+}
+.bottomcell { padding:2px 15px;border-right:1px solid #ffffff20; }
+.bottomcell:last-child { border:0; }
+.bottomlabel { color:#9dbbcb;font-size:8px;letter-spacing:1.2px; }
+.bottomvalue { font-size:17px;font-weight:bold;margin-top:8px; }
+.bottomsub { color:#9db5c2;font-size:8px;margin-top:4px; }
+#loading {
+    position:absolute;inset:0;z-index:20;
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;background:#739fb9;color:white;
+    font-size:12px;letter-spacing:1.5px;
+}
+#loading strong { font-size:17px;margin-bottom:12px; }
+#error {
+    display:none;margin-top:16px;max-width:500px;
+    padding:12px;background:#481f28;border-radius:8px;
+    color:#ffd9d9;font-size:11px;letter-spacing:0;
 }
 #alert {
-    position:absolute;
-    z-index:6;
-    top:90px;
-    left:50%;
-    transform:translateX(-50%);
-    padding:9px 17px;
-    font-size:10px;
-    letter-spacing:.7px;
-    opacity:0;
-    transition:opacity .3s;
-    pointer-events:none;
+    position:absolute;z-index:7;top:90px;left:50%;
+    transform:translateX(-50%);padding:10px 18px;
+    font-size:10px;opacity:0;transition:opacity .3s;
     white-space:nowrap;
 }
-#hint {
-    position:absolute;
-    z-index:4;
-    bottom:125px;
-    left:50%;
-    transform:translateX(-50%);
-    color:white;
-    text-shadow:0 2px 7px #183b50;
-    font-size:10px;
-    letter-spacing:1px;
-    opacity:.8;
-    pointer-events:none;
-}
-#loading {
-    position:absolute;
-    z-index:10;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    background:linear-gradient(#9bc7df,#397e9e);
-    color:white;
-    transition:opacity .8s;
-}
-#loading strong { font-size:19px;letter-spacing:2px; }
-#loading span { font-size:11px;margin-top:10px;opacity:.8; }
-.loader {
-    width:35px;height:35px;border:3px solid #ffffff55;
-    border-top-color:white;border-radius:50%;
-    animation:spin 1s linear infinite;margin-bottom:20px;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-
 @media(max-width:850px) {
-    #left { width:210px;left:8px;top:85px; }
-    #right { width:220px;right:8px;top:85px; }
-    #bottom { left:8px;right:8px;grid-template-columns:1fr 1fr; }
-    #topbar {left:8px;right:8px;top:8px;}
-    .topstatus {gap:8px;}
+    .panel { width:205px;top:85px;padding:11px; }
+    #right { width:220px; }
+    #left { left:7px; }
+    #right { right:7px; }
+    #bottom { left:7px;right:7px; }
 }
 </style>
 
@@ -360,182 +183,117 @@ button:hover {
 <div id="scene"></div>
 
 <div id="loading">
-    <div class="loader"></div>
     <strong>INTELLIGENT BRIDGE MONITORING</strong>
-    <span>Initializing 3D structural environment...</span>
+    Loading bridge model and environment...
+    <div id="error"></div>
 </div>
 
-<div id="topbar" class="glass">
+<div id="header" class="glass">
     <div class="brand">
         <div class="logo">🌉</div>
         <div>
             <h1>INTELLIGENT BRIDGE MONITORING</h1>
-            <small>STRUCTURAL HEALTH INTELLIGENCE SYSTEM</small>
+            <div class="sub">STRUCTURAL HEALTH INTELLIGENCE SYSTEM</div>
         </div>
     </div>
-    <div class="topstatus">
-        <span><i class="statusdot"></i>SYSTEM ONLINE</span>
-        <span id="modeLabel">CONTINUOUS MONITORING</span>
+    <div class="status">
+        <span class="dot"></span>SYSTEM ONLINE
+        &nbsp;&nbsp; | &nbsp;&nbsp;
+        <span id="modeTop">CONTINUOUS MONITORING</span>
+        &nbsp;&nbsp; | &nbsp;&nbsp;
         <span id="clock">--:--:--</span>
     </div>
 </div>
 
-<div id="left" class="glass">
-    <div class="paneltitle">Simulation controls</div>
-
-    <div class="sectionlabel">Traffic simulation</div>
+<div id="left" class="panel glass">
+    <div class="heading">SIMULATION CONTROLS</div>
+    <div class="label">Traffic simulation</div>
 
     <div class="control">
-        <div class="controlhead">
-            <span>Vehicle load</span><strong id="weightValue">18 tons</strong>
-        </div>
+        <div class="controlhead"><span>Vehicle load</span><strong id="weightText">18 tons</strong></div>
         <input id="weight" type="range" min="2" max="45" value="18">
     </div>
-
     <div class="control">
-        <div class="controlhead">
-            <span>Vehicle speed</span><strong id="speedValue">55 km/h</strong>
-        </div>
+        <div class="controlhead"><span>Vehicle speed</span><strong id="speedText">55 km/h</strong></div>
         <input id="speed" type="range" min="10" max="110" value="55">
     </div>
-
     <div class="control">
-        <div class="controlhead">
-            <span>Traffic intensity</span><strong id="trafficValue">45%</strong>
-        </div>
+        <div class="controlhead"><span>Traffic intensity</span><strong id="trafficText">45%</strong></div>
         <input id="traffic" type="range" min="0" max="100" value="45">
     </div>
 
-    <div class="section">
-        <div class="sectionlabel">Structural simulation</div>
-
+    <div class="separator">
+        <div class="label">Structural simulation</div>
         <div class="control">
-            <div class="controlhead">
-                <span>Illustrative stiffness change</span>
-                <strong id="stiffValue">0%</strong>
-            </div>
+            <div class="controlhead"><span>Stiffness change</span><strong id="stiffText">0%</strong></div>
             <input id="stiffness" type="range" min="0" max="30" value="0">
         </div>
-
         <div class="control">
-            <div class="controlhead">
-                <span>Trigger sensitivity</span>
-                <strong id="triggerValue">65%</strong>
-            </div>
+            <div class="controlhead"><span>Trigger sensitivity</span><strong id="triggerText">65%</strong></div>
             <input id="trigger" type="range" min="10" max="100" value="65">
         </div>
-
-        <div class="control">
-            <div class="controlhead"><span>Test location</span></div>
-            <select id="location">
-                <option value="center">Center span</option>
-                <option value="north">North approach</option>
-                <option value="south">South approach</option>
-                <option value="tower">Main tower region</option>
-            </select>
-        </div>
-
-        <button class="primary" id="eventButton">SIMULATE STRUCTURAL EVENT</button>
-        <button class="primary" id="resetButton">RESET SIMULATION</button>
+        <div class="label">Test location</div>
+        <select id="location">
+            <option>Center span</option>
+            <option>North approach</option>
+            <option>South approach</option>
+            <option>Main tower</option>
+        </select>
+        <button id="event">SIMULATE STRUCTURAL EVENT</button>
+        <button id="reset">RESET SIMULATION</button>
     </div>
-
-    <div class="section">
-        <div class="sectionlabel">Display</div>
-        <button id="sensorButton">TOGGLE SENSOR VISIBILITY</button>
-        <button id="cameraButton">RESET CAMERA</button>
+    <div class="separator">
+        <button id="sensors">TOGGLE SENSOR MARKERS</button>
+        <button id="camera">RESET CAMERA</button>
     </div>
 </div>
 
-<div id="right" class="glass">
-    <div class="paneltitle">Live structural telemetry</div>
-
-    <div class="metricgrid">
-        <div class="metric">
-            <small>Deck strain</small>
-            <strong class="blue" id="strain">112</strong>
-            <em>με · illustrative</em>
-        </div>
-        <div class="metric">
-            <small>Deck deflection</small>
-            <strong class="blue" id="deflection">3.2</strong>
-            <em>mm · illustrative</em>
-        </div>
-        <div class="metric">
-            <small>Vibration</small>
-            <strong class="blue" id="vibration">0.18</strong>
-            <em>mm/s · illustrative</em>
-        </div>
-        <div class="metric">
-            <small>Temperature</small>
-            <strong class="blue" id="temperature">27.4</strong>
-            <em>°C · simulated</em>
-        </div>
+<div id="right" class="panel glass">
+    <div class="heading">LIVE STRUCTURAL TELEMETRY</div>
+    <div class="grid">
+        <div class="metric"><small>Deck strain</small><strong class="blue" id="strain">112</strong><em>με · simulated</em></div>
+        <div class="metric"><small>Deflection</small><strong class="blue" id="deflection">3.2</strong><em>mm · simulated</em></div>
+        <div class="metric"><small>Vibration</small><strong class="blue" id="vibration">0.18</strong><em>mm/s · simulated</em></div>
+        <div class="metric"><small>Temperature</small><strong class="blue" id="temperature">27.4</strong><em>°C · simulated</em></div>
     </div>
-
-    <div class="section">
-        <div class="paneltitle">Sensor network</div>
-        <div class="sensorrow">
-            <span class="sensorname"><i class="sensordot"></i>Primary strain sensors</span>
-            <span class="green">ACTIVE</span>
-        </div>
-        <div class="sensorrow">
-            <span class="sensorname"><i class="sensordot"></i>Accelerometers</span>
-            <span class="green">ACTIVE</span>
-        </div>
-        <div class="sensorrow">
-            <span class="sensorname"><i class="sensordot"></i>Displacement sensors</span>
-            <span class="green">ACTIVE</span>
-        </div>
-        <div class="sensorrow">
-            <span class="sensorname"><i class="sensordot extra"></i>Acoustic / extra sensors</span>
-            <span id="extraStatus" class="orange">STANDBY</span>
-        </div>
-        <div class="sensorrow">
-            <span class="sensorname"><i class="sensordot extra"></i>Thermal attention</span>
-            <span id="thermalStatus" class="orange">STANDBY</span>
-        </div>
+    <div class="separator">
+        <div class="heading">SENSOR NETWORK</div>
+        <div class="sensor"><span><i></i>Primary strain sensors</span><b class="green">ACTIVE</b></div>
+        <div class="sensor"><span><i></i>Accelerometers</span><b class="green">ACTIVE</b></div>
+        <div class="sensor"><span><i></i>Displacement sensors</span><b class="green">ACTIVE</b></div>
+        <div class="sensor"><span><i class="extra"></i>Acoustic sensors</span><b id="extra" class="orange">STANDBY</b></div>
+        <div class="sensor"><span><i class="extra"></i>Thermal attention</span><b id="thermal" class="orange">STANDBY</b></div>
     </div>
-
-    <div class="section">
-        <div class="paneltitle">Event analysis</div>
-        <div class="sensorrow">
-            <span>Monitoring mode</span><strong id="modeValue" class="green">NORMAL</strong>
-        </div>
-        <div class="sensorrow">
-            <span>Change signal</span><strong id="changeValue">LOW</strong>
-        </div>
-        <div class="sensorrow">
-            <span>Persistence check</span><strong id="persistence">WAITING</strong>
-        </div>
-        <div class="sensorrow">
-            <span>System interpretation</span><strong id="interpretation" class="green">BASELINE</strong>
-        </div>
+    <div class="separator">
+        <div class="heading">EVENT ANALYSIS</div>
+        <div class="sensor"><span>Monitoring mode</span><b id="mode" class="green">NORMAL</b></div>
+        <div class="sensor"><span>Change signal</span><b id="signal">LOW</b></div>
+        <div class="sensor"><span>Persistence check</span><b id="persist">WAITING</b></div>
+        <div class="sensor"><span>Interpretation</span><b id="interpret" class="green">BASELINE</b></div>
     </div>
 </div>
 
 <div id="alert" class="glass"></div>
 
-<div id="hint">DRAG TO ROTATE · SCROLL TO ZOOM · RIGHT-CLICK TO PAN</div>
-
 <div id="bottom" class="glass">
     <div class="bottomcell">
-        <div class="bottomlabel">Traffic flow</div>
-        <div class="bottomvalue" id="trafficFlow">45%</div>
+        <div class="bottomlabel">TRAFFIC FLOW</div>
+        <div class="bottomvalue" id="flow">45%</div>
         <div class="bottomsub">Relative to simulated normal traffic</div>
     </div>
     <div class="bottomcell">
-        <div class="bottomlabel">Vehicle activity</div>
+        <div class="bottomlabel">VEHICLE ACTIVITY</div>
         <div class="bottomvalue" id="vehicleCount">4</div>
-        <div class="bottomsub">Vehicles in current simulation</div>
+        <div class="bottomsub">Vehicles in simulation</div>
     </div>
     <div class="bottomcell">
-        <div class="bottomlabel">Sensor attention</div>
+        <div class="bottomlabel">SENSOR ATTENTION</div>
         <div class="bottomvalue green" id="attention">STANDARD</div>
         <div class="bottomsub">Adaptive attention state</div>
     </div>
     <div class="bottomcell">
-        <div class="bottomlabel">Data acquisition</div>
-        <div class="bottomvalue" id="sampleCount">000001</div>
+        <div class="bottomlabel">DATA ACQUISITION</div>
+        <div class="bottomvalue" id="samples">000001</div>
         <div class="bottomsub">Illustrative simulation samples</div>
     </div>
 </div>
@@ -544,46 +302,46 @@ button:hover {
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { Sky } from "three/addons/objects/Sky.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { Water } from "three/addons/objects/Water.js";
 
-const container = document.getElementById("scene");
+const $ = id => document.getElementById(id);
+const sceneRoot = $("scene");
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x91c5e5);
-scene.fog = new THREE.FogExp2(0x9fc9df, 0.00065);
+scene.background = new THREE.Color(0x9fc6dc);
+scene.fog = new THREE.FogExp2(0x9fc6dc,0.00035);
 
 const camera = new THREE.PerspectiveCamera(
-    48, window.innerWidth/window.innerHeight, 0.1, 3000
+    43,innerWidth/innerHeight,0.1,5000
 );
-camera.position.set(180, 105, 235);
+camera.position.set(170,90,220);
 
 const renderer = new THREE.WebGLRenderer({
     antialias:true,
-    alpha:false,
     powerPreference:"high-performance"
 });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-container.appendChild(renderer.domElement);
+renderer.toneMappingExposure = 1.05;
+sceneRoot.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera,renderer.domElement);
-controls.target.set(0,30,0);
 controls.enableDamping = true;
-controls.dampingFactor = 0.045;
-controls.minDistance = 70;
-controls.maxDistance = 650;
-controls.maxPolarAngle = Math.PI * 0.48;
+controls.dampingFactor = .045;
+controls.target.set(0,28,0);
+controls.minDistance = 55;
+controls.maxDistance = 700;
+controls.maxPolarAngle = Math.PI*.49;
 
-scene.add(new THREE.HemisphereLight(0xd9efff,0x526b4c,1.8));
+scene.add(new THREE.HemisphereLight(0xd8edff,0x526b51,1.35));
 
-const sun = new THREE.DirectionalLight(0xfff2d9,3.2);
-sun.position.set(-180,260,120);
+const sun = new THREE.DirectionalLight(0xfff0d8,3.0);
+sun.position.set(-180,250,130);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048,2048);
 sun.shadow.camera.left = -300;
@@ -592,572 +350,417 @@ sun.shadow.camera.top = 300;
 sun.shadow.camera.bottom = -300;
 scene.add(sun);
 
-const sky = new Sky();
-sky.scale.setScalar(10000);
-scene.add(sky);
-sky.material.uniforms.turbidity.value = 7;
-sky.material.uniforms.rayleigh.value = 1.8;
-sky.material.uniforms.mieCoefficient.value = 0.004;
-sky.material.uniforms.mieDirectionalG.value = 0.82;
+const pmrem = new THREE.PMREMGenerator(renderer);
+pmrem.compileEquirectangularShader();
 
-const sunVector = new THREE.Vector3();
-sunVector.setFromSphericalCoords(
-    1, THREE.MathUtils.degToRad(82),
-    THREE.MathUtils.degToRad(210)
+const hdriURL =
+"https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/kloofendal_48d_partly_cloudy_puresky_1k.hdr";
+
+new RGBELoader().load(
+    hdriURL,
+    texture => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.background = texture;
+        scene.environment = pmrem.fromEquirectangular(texture).texture;
+        texture.dispose();
+        pmrem.dispose();
+    },
+    undefined,
+    error => console.warn("HDR environment unavailable; using scene lighting.",error)
 );
-sky.material.uniforms.sunPosition.value.copy(sunVector);
 
-const waterGeometry = new THREE.PlaneGeometry(4000,4000);
-const water = new Water(waterGeometry,{
-    textureWidth:1024,
-    textureHeight:1024,
-    waterNormals:new THREE.TextureLoader().load(
-        "https://threejs.org/examples/textures/waternormals.jpg",
-        t => {
-            t.wrapS = t.wrapT = THREE.RepeatWrapping;
-        }
-    ),
-    sunDirection:sunVector.clone().normalize(),
-    sunColor:0xffffff,
-    waterColor:0x276c88,
-    distortionScale:3.0,
-    fog:true
-});
-water.rotation.x = -Math.PI/2;
-water.position.y = -3;
+// Water with animated normal maps and reflections
+const water = new Water(
+    new THREE.PlaneGeometry(5000,5000),
+    {
+        textureWidth:1024,
+        textureHeight:1024,
+        waterNormals:new THREE.TextureLoader().load(
+            "https://threejs.org/examples/textures/waternormals.jpg",
+            t => { t.wrapS=t.wrapT=THREE.RepeatWrapping; }
+        ),
+        sunDirection:new THREE.Vector3(-1,1,1).normalize(),
+        sunColor:0xffffff,
+        waterColor:0x285f78,
+        distortionScale:2.5,
+        fog:true
+    }
+);
+water.rotation.x=-Math.PI/2;
+water.position.y=-4;
 scene.add(water);
 
-// Shoreline and terrain
-const terrainMat = new THREE.MeshStandardMaterial({
-    color:0x557d4b, roughness:1
+// Distant shoreline
+const terrainMaterial = new THREE.MeshStandardMaterial({
+    color:0x66865b,roughness:1
 });
-const land = new THREE.Mesh(
-    new THREE.PlaneGeometry(3000,3000),
-    terrainMat
-);
-land.rotation.x = -Math.PI/2;
-land.position.set(0,-8,-800);
-scene.add(land);
 
-function makeHill(x,z,sx,sy,sz,color) {
-    const mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(1,48,32),
-        new THREE.MeshStandardMaterial({
-            color,roughness:1
-        })
+function hill(x,y,z,sx,sy,sz,color){
+    const mesh=new THREE.Mesh(
+        new THREE.SphereGeometry(1,40,28),
+        new THREE.MeshStandardMaterial({color,roughness:1})
     );
-    mesh.position.set(x,sy*0.18,z);
+    mesh.position.set(x,y,z);
     mesh.scale.set(sx,sy,sz);
-    mesh.receiveShadow = true;
+    mesh.receiveShadow=true;
     scene.add(mesh);
 }
-for(let i=0;i<15;i++){
-    makeHill(
-        -900+i*130,
-        -700-Math.random()*280,
-        90+Math.random()*90,
-        40+Math.random()*70,
-        80+Math.random()*100,
-        i%2 ? 0x547b54 : 0x6c8e60
-    );
+for(let i=0;i<16;i++){
+    hill(-1000+i*135,12,-850-Math.random()*120,
+        110,55+Math.random()*30,100,
+        i%2?0x597b50:0x718c5c);
 }
-for(let i=0;i<12;i++){
-    makeHill(
-        -850+i*150,
-        650+Math.random()*180,
-        100+Math.random()*100,
-        45+Math.random()*65,
-        80+Math.random()*100,
-        0x64875b
-    );
+for(let i=0;i<14;i++){
+    hill(-900+i*145,12,850+Math.random()*100,
+        120,55+Math.random()*35,100,
+        i%2?0x587950:0x718c5c);
 }
 
-// Bridge group
+// Bridge model
 const bridgeGroup = new THREE.Group();
 scene.add(bridgeGroup);
 
-const sensorGroup = new THREE.Group();
-scene.add(sensorGroup);
-
-const vehicleGroup = new THREE.Group();
-scene.add(vehicleGroup);
-
-const materials = {
-    concrete:new THREE.MeshStandardMaterial({
-        color:0xb9c1c6,roughness:.72,metalness:.08
-    }),
-    deck:new THREE.MeshStandardMaterial({
-        color:0x59636a,roughness:.7,metalness:.2
-    }),
-    steel:new THREE.MeshStandardMaterial({
-        color:0xdce3e6,roughness:.3,metalness:.72
-    }),
-    cable:new THREE.MeshStandardMaterial({
-        color:0xf0f3f5,roughness:.3,metalness:.5
-    }),
-    road:new THREE.MeshStandardMaterial({
-        color:0x303a40,roughness:.88
-    }),
-    white:new THREE.MeshStandardMaterial({
-        color:0xe5e6d9,roughness:.6
-    })
-};
-
-function beam(parent,a,b,radius,material,radial=8){
-    const start = new THREE.Vector3(...a);
-    const end = new THREE.Vector3(...b);
-    const delta = new THREE.Vector3().subVectors(end,start);
-    const mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(radius,radius,delta.length(),radial),
-        material
-    );
-    mesh.position.copy(start).add(end).multiplyScalar(.5);
-    mesh.quaternion.setFromUnitVectors(
-        new THREE.Vector3(0,1,0),delta.normalize()
-    );
-    mesh.castShadow = true;
-    parent.add(mesh);
-    return mesh;
-}
-
-function block(parent,x,y,z,sx,sy,sz,mat){
-    const mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(sx,sy,sz),mat
-    );
-    mesh.position.set(x,y,z);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    parent.add(mesh);
-    return mesh;
-}
-
-// Detailed fallback cable-stayed bridge
-function buildFallbackBridge(){
-    const g = bridgeGroup;
-    const deckY = 27;
-    const deckLength = 390;
-    const deckWidth = 23;
-
-    block(g,0,deckY,0,deckLength,3,deckWidth,materials.road);
-    block(g,0,deckY-1.8,0,deckLength,1.2,deckWidth+2,materials.concrete);
-
-    // Deck side girders
-    for(const z of [-12,12]){
-        block(g,0,deckY-2.7,z,deckLength,1.2,1.0,materials.steel);
-        for(let x=-185;x<=185;x+=20){
-            block(g,x,deckY-2.8,z,1.1,1.2,1.3,materials.steel);
-        }
-    }
-
-    // Road markings
-    for(let x=-180;x<190;x+=18){
-        block(g,x,deckY+1.53,0,9,.06,.22,materials.white);
-    }
-    for(const z of [-8.8,8.8]){
-        block(g,0,deckY+1.53,z,deckLength,.07,.22,materials.white);
-    }
-
-    // Railings
-    for(const z of [-12,12]){
-        for(let x=-190;x<=190;x+=8){
-            block(g,x,deckY+3,z,.28,2.2,.28,materials.steel);
-        }
-        beam(g,[-195,deckY+4,z],[195,deckY+4,z],.23,materials.steel);
-    }
-
-    // Main pylons
-    const towerXs = [-72,72];
-    for(const x of towerXs){
-        beam(g,[x,deckY-1,-1],[x,111,-1],2.7,materials.concrete,12);
-        beam(g,[x-8,deckY-1,-1],[x,111,-1],2.1,materials.concrete,12);
-        beam(g,[x+8,deckY-1,-1],[x,111,-1],2.1,materials.concrete,12);
-        beam(g,[x,111,-1],[x,111,1],2.5,materials.concrete,12);
-
-        // Cross beam and tower detailing
-        beam(g,[x-8,65,-1],[x+8,65,-1],1.6,materials.concrete);
-        beam(g,[x-6,85,-1],[x+6,85,-1],1.2,materials.concrete);
-
-        // Cable fan on both sides of each tower
-        for(let i=0;i<11;i++){
-            const leftX = x-8-i*9;
-            const rightX = x+8+i*9;
-            const attachY = 103-i*4.5;
-            beam(g,[x,attachY,0],[leftX,deckY+2,0],.13,materials.cable,6);
-            beam(g,[x,attachY,0],[rightX,deckY+2,0],.13,materials.cable,6);
-        }
-    }
-
-    // Approach supports
-    for(const x of [-185,185]){
-        block(g,x,12,0,5,25,27,materials.concrete);
-    }
-}
-
-// Load actual GLB bridge asset
-const MODEL_URL =
+const bridgeURL =
 "https://raw.githubusercontent.com/experimentscience/bridge-monitoring-stem/main/assets/cable-stayed-bridge.glb";
 
-let modelLoaded = false;
+let bridgeReady=false;
+let bridgeLength=380;
+let bridgeWidth=64;
+let deckHeight=10;
 
-function fitBridgeModel(root){
-    const box = new THREE.Box3().setFromObject(root);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
+function prepareModel(root){
+    // Turn the bridge so its longest horizontal axis runs left-to-right.
+    let box=new THREE.Box3().setFromObject(root);
+    let size=box.getSize(new THREE.Vector3());
 
-    if(!isFinite(size.x) || size.length()===0) {
-        throw new Error("Bridge model has invalid dimensions");
+    if(size.z>size.x){
+        root.rotation.y=Math.PI/2;
     }
 
+    box=new THREE.Box3().setFromObject(root);
+    let center=box.getCenter(new THREE.Vector3());
     root.position.sub(center);
-    const refreshed = new THREE.Box3().setFromObject(root);
-    root.position.y -= refreshed.min.y;
 
-    const newBox = new THREE.Box3().setFromObject(root);
-    const dims = newBox.getSize(new THREE.Vector3());
+    box=new THREE.Box3().setFromObject(root);
+    size=box.getSize(new THREE.Vector3());
 
-    // Normalize the model's longest horizontal dimension.
-    const horizontal = Math.max(dims.x,dims.z);
-    const scale = 390 / horizontal;
+    const longest=Math.max(size.x,size.z);
+    const scale=380/longest;
     root.scale.setScalar(scale);
 
-    const finalBox = new THREE.Box3().setFromObject(root);
-    const finalSize = finalBox.getSize(new THREE.Vector3());
-    const finalCenter = finalBox.getCenter(new THREE.Vector3());
-
-    root.position.x -= finalCenter.x;
-    root.position.z -= finalCenter.z;
-    root.position.y -= finalBox.min.y;
-
-    // Bring the model above the water surface.
-    root.position.y += 1;
+    box=new THREE.Box3().setFromObject(root);
+    center=box.getCenter(new THREE.Vector3());
+    root.position.x-=center.x;
+    root.position.z-=center.z;
+    root.position.y-=box.min.y;
 
     root.traverse(obj=>{
-        if(obj.isMesh){
-            obj.castShadow = true;
-            obj.receiveShadow = true;
-            if(obj.material){
-                obj.material.needsUpdate = true;
-            }
+        if(!obj.isMesh)return;
+        obj.castShadow=true;
+        obj.receiveShadow=true;
+        if(obj.material){
+            obj.material.needsUpdate=true;
         }
     });
+
+    bridgeLength=380;
+    bridgeWidth=Math.min(64,size.z*scale);
+    deckHeight=10;
 }
 
-function loadBridge(){
-    const loader = new GLTFLoader();
-    loader.load(
-        MODEL_URL,
-        gltf=>{
-            bridgeGroup.clear();
-            const root = gltf.scene;
-            fitBridgeModel(root);
-            bridgeGroup.add(root);
-            modelLoaded = true;
-            console.log("Bridge GLB loaded successfully");
-        },
-        undefined,
-        error=>{
-            console.error("GLB could not be loaded:",error);
-            buildFallbackBridge();
+function showError(message){
+    $("error").style.display="block";
+    $("error").textContent=message;
+    $("loading").style.background="#492b35";
+}
+
+new GLTFLoader().load(
+    bridgeURL,
+    gltf=>{
+        const model=gltf.scene;
+        prepareModel(model);
+        bridgeGroup.add(model);
+        bridgeReady=true;
+        $("loading").style.display="none";
+        console.log("Actual bridge model loaded.");
+    },
+    progress=>{
+        if(progress.total){
+            console.log("Model loading:",
+                Math.round(progress.loaded/progress.total*100)+"%");
         }
-    );
-}
-loadBridge();
+    },
+    error=>{
+        console.error(error);
+        showError(
+            "The bridge model could not be loaded. Check that the GLB exists in the GitHub main/assets folder and that the repository is public."
+        );
+    }
+);
 
-// Sensor markers
-const primarySensors = [];
-const extraSensors = [];
+// Sensor marker system
+const sensorGroup=new THREE.Group();
+scene.add(sensorGroup);
 
-function createSensor(x,y,z,extra=false){
-    const color = extra ? 0xff514d : 0x36f2a0;
-    const mat = new THREE.MeshStandardMaterial({
-        color,
-        emissive:color,
-        emissiveIntensity:1.4,
-        roughness:.25
+const primarySensors=[];
+const extraSensors=[];
+
+function addSensor(x,y,z,extra=false){
+    const color=extra?0xff514d:0x43f0a1;
+    const material=new THREE.MeshStandardMaterial({
+        color,emissive:color,emissiveIntensity:1.5
     });
-    const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(extra?1.05:.8,16,16),
-        mat
+    const marker=new THREE.Mesh(
+        new THREE.SphereGeometry(.85,18,18),material
     );
-    sphere.position.set(x,y,z);
-    sensorGroup.add(sphere);
+    marker.position.set(x,y,z);
+    sensorGroup.add(marker);
 
-    const halo = new THREE.Mesh(
-        new THREE.SphereGeometry(extra?2.2:1.7,16,16),
+    const halo=new THREE.Mesh(
+        new THREE.SphereGeometry(1.8,18,18),
         new THREE.MeshBasicMaterial({
-            color,
-            transparent:true,
-            opacity:.15,
+            color,transparent:true,opacity:.17,
             side:THREE.BackSide
         })
     );
-    halo.position.copy(sphere.position);
+    halo.position.copy(marker.position);
     sensorGroup.add(halo);
 
-    const sensor = {sphere,halo,extra};
-    if(extra) extraSensors.push(sensor);
-    else primarySensors.push(sensor);
+    (extra?extraSensors:primarySensors).push({marker,halo});
 }
 
+// Initial marker positions are illustrative; refine after checking
+// the model's deck alignment in the actual app.
 for(let x=-165;x<=165;x+=33){
-    createSensor(x,31,-8.5);
-    createSensor(x,31,8.5);
+    addSensor(x,deckHeight+1,-9);
+    addSensor(x,deckHeight+1,9);
 }
 for(const x of [-72,72]){
-    createSensor(x,65,0,true);
-    createSensor(x,90,0,true);
-}
-for(let x=-130;x<=130;x+=65){
-    createSensor(x,31,0,true);
+    addSensor(x,deckHeight+30,0,true);
+    addSensor(x,deckHeight+55,0,true);
 }
 
-// Vehicles
-const vehicleColors = [0xe9ecef,0x294c68,0xc5a26a,0x526c72,0xeeeeee];
+// Traffic vehicles
+const vehicleGroup=new THREE.Group();
+scene.add(vehicleGroup);
+const vehicles=[];
+const carColors=[0xe6e9eb,0x263e51,0xb2a27f,0x63747c,0xeeeeea];
 
-function createVehicle(index){
-    const group = new THREE.Group();
-    const color = vehicleColors[index%vehicleColors.length];
-    const bodyMat = new THREE.MeshStandardMaterial({
-        color,roughness:.42,metalness:.25
+function createCar(i){
+    const g=new THREE.Group();
+    const paint=new THREE.MeshStandardMaterial({
+        color:carColors[i%carColors.length],
+        metalness:.55,roughness:.28
     });
-    const glassMat = new THREE.MeshStandardMaterial({
-        color:0x253b4a,roughness:.2,metalness:.3
+    const glass=new THREE.MeshPhysicalMaterial({
+        color:0x182c3a,metalness:.25,
+        roughness:.12,clearcoat:1
     });
+    function part(w,h,d,y,mat,x=0){
+        const m=new THREE.Mesh(
+            new THREE.BoxGeometry(w,h,d),mat
+        );
+        m.position.set(x,y,0);
+        m.castShadow=true;
+        g.add(m);
+    }
+    part(7,1.7,3.1,1.2,paint);
+    part(3.6,1.25,2.65,2.55,glass,.2);
 
-    block(group,0,1.3,0,7.5,2.1,3.0,bodyMat);
-    block(group,.6,2.7,0,3.4,1.2,2.7,glassMat);
-
-    for(const x of [-2.4,2.4]){
-        for(const z of [-1.55,1.55]){
-            const wheel = new THREE.Mesh(
-                new THREE.CylinderGeometry(.65,.65,.35,16),
-                new THREE.MeshStandardMaterial({color:0x15191c})
+    const wheelMat=new THREE.MeshStandardMaterial({
+        color:0x171b20,roughness:.9
+    });
+    for(const x of [-2.2,2.2]){
+        for(const z of [-1.6,1.6]){
+            const wheel=new THREE.Mesh(
+                new THREE.CylinderGeometry(.58,.58,.35,20),
+                wheelMat
             );
-            wheel.rotation.x = Math.PI/2;
-            wheel.position.set(x,.65,z);
-            group.add(wheel);
+            wheel.rotation.x=Math.PI/2;
+            wheel.position.set(x,.58,z);
+            g.add(wheel);
         }
     }
-    group.position.y = 29;
-    vehicleGroup.add(group);
-    return group;
+    vehicleGroup.add(g);
+    return g;
 }
 
-const vehicles = [];
 for(let i=0;i<7;i++){
     vehicles.push({
-        mesh:createVehicle(i),
-        progress:(i/7),
-        lane:i%2===0?-4.5:4.5,
-        speed:.00012+Math.random()*.00008
+        mesh:createCar(i),
+        progress:i/7,
+        lane:i%2===0?-5:5,
+        speed:.00015+Math.random()*.00005
     });
 }
 
-// Simulation state
-let eventActive = false;
-let eventTime = 0;
-let samples = 0;
-let sensorVisible = true;
-let eventPersistence = 0;
-let lastEventSignal = 0;
+// Controls and simulation
+const weight=$("weight");
+const speed=$("speed");
+const traffic=$("traffic");
+const stiffness=$("stiffness");
+const trigger=$("trigger");
 
-const $ = id=>document.getElementById(id);
-const weight = $("weight");
-const speed = $("speed");
-const traffic = $("traffic");
-const stiffness = $("stiffness");
-const trigger = $("trigger");
-
-function updateLabels(){
-    $("weightValue").textContent = weight.value+" tons";
-    $("speedValue").textContent = speed.value+" km/h";
-    $("trafficValue").textContent = traffic.value+"%";
-    $("stiffValue").textContent = stiffness.value+"%";
-    $("triggerValue").textContent = trigger.value+"%";
+function labels(){
+    $("weightText").textContent=weight.value+" tons";
+    $("speedText").textContent=speed.value+" km/h";
+    $("trafficText").textContent=traffic.value+"%";
+    $("stiffText").textContent=stiffness.value+"%";
+    $("triggerText").textContent=trigger.value+"%";
 }
-[weight,speed,traffic,stiffness,trigger].forEach(el=>{
-    el.addEventListener("input",updateLabels);
-});
-updateLabels();
+[weight,speed,traffic,stiffness,trigger].forEach(
+    el=>el.addEventListener("input",labels)
+);
+labels();
 
-function showAlert(message){
+let eventActive=false;
+let elapsed=0;
+let sample=0;
+let persistence=0;
+let sensorsVisible=true;
+
+function alertMessage(message){
     const a=$("alert");
     a.textContent=message;
     a.style.opacity=1;
-    clearTimeout(showAlert.timer);
-    showAlert.timer=setTimeout(()=>a.style.opacity=0,3500);
+    clearTimeout(alertMessage.timer);
+    alertMessage.timer=setTimeout(()=>a.style.opacity=0,3200);
 }
 
-$("eventButton").onclick=()=>{
+$("event").onclick=()=>{
     eventActive=true;
-    eventTime=0;
-    eventPersistence=0;
-    showAlert("EVENT SIMULATION ACTIVATED · ADAPTIVE ATTENTION ENABLED");
+    persistence=0;
+    alertMessage("EVENT SIMULATION ACTIVATED · ADAPTIVE ATTENTION");
 };
-
-$("resetButton").onclick=()=>{
+$("reset").onclick=()=>{
     eventActive=false;
-    eventTime=0;
-    eventPersistence=0;
-    stiffness.value=0;
-    traffic.value=45;
+    persistence=0;
     weight.value=18;
     speed.value=55;
-    updateLabels();
-    showAlert("SIMULATION RESET · RETURNING TO BASELINE");
+    traffic.value=45;
+    stiffness.value=0;
+    trigger.value=65;
+    labels();
+    alertMessage("SIMULATION RESET · BASELINE RESTORED");
 };
-
-$("sensorButton").onclick=()=>{
-    sensorVisible=!sensorVisible;
-    sensorGroup.visible=sensorVisible;
+$("sensors").onclick=()=>{
+    sensorsVisible=!sensorsVisible;
+    sensorGroup.visible=sensorsVisible;
 };
-
-$("cameraButton").onclick=()=>{
-    camera.position.set(180,105,235);
-    controls.target.set(0,30,0);
+$("camera").onclick=()=>{
+    camera.position.set(170,90,220);
+    controls.target.set(0,28,0);
     controls.update();
 };
 
-function updateTelemetry(time){
-    const trafficVal=Number(traffic.value);
-    const weightVal=Number(weight.value);
-    const stiffnessVal=Number(stiffness.value);
+function telemetry(t){
+    const w=Number(weight.value);
+    const tr=Number(traffic.value)/100;
+    const st=Number(stiffness.value)/100;
     const sensitivity=Number(trigger.value);
 
-    const trafficFactor=trafficVal/100;
-    const loadFactor=weightVal/18;
-    const naturalWave=Math.sin(time*1.3)*.035;
-    const vehicleResponse=trafficFactor*loadFactor*.18;
-    const structuralResponse=stiffnessVal/100*.75;
+    const trafficResponse=tr*(w/18)*.18;
+    const structuralResponse=st*.75;
+    const wave=Math.sin(t*1.3)*.035;
 
-    const strain=105+vehicleResponse*100+structuralResponse*90+
-                 naturalWave*100;
-    const deflection=2.7+vehicleResponse*2.3+
-                     structuralResponse*3.2+Math.abs(naturalWave)*2;
-    const vibration=.13+vehicleResponse*.45+
-                    structuralResponse*.3+Math.abs(naturalWave)*.1;
-    const temperature=27.4+Math.sin(time*.08)*1.2;
+    const strain=105+trafficResponse*100+
+        structuralResponse*90+wave*100;
+    const deflection=2.7+trafficResponse*2.3+
+        structuralResponse*3.2+Math.abs(wave)*2;
+    const vibration=.13+trafficResponse*.45+
+        structuralResponse*.3+Math.abs(wave)*.1;
+    const temperature=27.4+Math.sin(t*.08)*1.2;
 
-    const signal=vehicleResponse*100+structuralResponse*100;
-    const threshold=20+(sensitivity/100)*45;
-    const triggered=signal>threshold;
+    const signal=trafficResponse*100+structuralResponse*100;
+    const threshold=20+sensitivity*.45;
+    const detected=signal>threshold;
 
-    if(triggered){
-        eventPersistence++;
-    } else {
-        eventPersistence=Math.max(0,eventPersistence-1);
-    }
+    persistence=detected?Math.min(persistence+1,100):
+        Math.max(0,persistence-1);
 
-    const adaptive=eventActive || eventPersistence>12;
+    const adaptive=eventActive||persistence>12;
 
     $("strain").textContent=strain.toFixed(0);
     $("deflection").textContent=deflection.toFixed(2);
     $("vibration").textContent=vibration.toFixed(2);
     $("temperature").textContent=temperature.toFixed(1);
 
-    $("trafficFlow").textContent=trafficVal+"%";
-    $("vehicleCount").textContent=
-        Math.max(0,Math.round(trafficVal/15));
-    $("sampleCount").textContent=String(samples).padStart(6,"0");
+    $("flow").textContent=traffic.value+"%";
+    $("vehicleCount").textContent=Math.round(tr*8);
+    $("samples").textContent=String(sample).padStart(6,"0");
 
-    $("extraStatus").textContent=adaptive?"ACTIVE":"STANDBY";
-    $("thermalStatus").textContent=adaptive?"ACTIVE":"STANDBY";
+    $("extra").textContent=adaptive?"ACTIVE":"STANDBY";
+    $("thermal").textContent=adaptive?"ACTIVE":"STANDBY";
     $("attention").textContent=adaptive?"ADAPTIVE":"STANDARD";
     $("attention").className="bottomvalue "+(adaptive?"red":"green");
 
-    $("modeValue").textContent=adaptive?"SPECIAL ATTENTION":"NORMAL";
-    $("modeValue").className=adaptive?"red":"green";
-    $("modeLabel").textContent=adaptive?
+    $("mode").textContent=adaptive?"SPECIAL ATTENTION":"NORMAL";
+    $("mode").className=adaptive?"red":"green";
+    $("modeTop").textContent=adaptive?
         "ADAPTIVE ATTENTION":"CONTINUOUS MONITORING";
 
-    $("changeValue").textContent=triggered?"ELEVATED":"LOW";
-    $("changeValue").className=triggered?"orange":"green";
-
-    $("persistence").textContent=eventPersistence>35?
+    $("signal").textContent=detected?"ELEVATED":"LOW";
+    $("signal").className=detected?"orange":"green";
+    $("persist").textContent=persistence>35?
         "PERSISTENT SIGNAL":"UNDER OBSERVATION";
 
-    if(stiffnessVal>0 && eventPersistence>35){
-        $("interpretation").textContent="PERSISTENT CHANGE";
-        $("interpretation").className="orange";
-    } else if(triggered){
-        $("interpretation").textContent="REQUIRES REVIEW";
-        $("interpretation").className="orange";
-    } else {
-        $("interpretation").textContent="BASELINE";
-        $("interpretation").className="green";
-    }
-
-    if(eventActive){
-        eventTime+=.016;
-        if(eventTime>12){
-            eventActive=false;
-            showAlert("EVENT WINDOW COMPLETE · CONTINUE OBSERVING THE SIGNAL");
-        }
-    }
-
-    lastEventSignal=signal;
+    $("interpret").textContent=
+        st>0&&persistence>35?"PERSISTENT CHANGE":
+        detected?"REQUIRES REVIEW":"BASELINE";
+    $("interpret").className=
+        st>0&&persistence>35?"orange":
+        detected?"orange":"green";
 }
-
-// Clock
-function updateClock(){
-    $("clock").textContent=new Date().toLocaleTimeString();
-}
-setInterval(updateClock,1000);
-updateClock();
-
-// Animation
-const clock = new THREE.Clock();
-let elapsed=0;
 
 function animate(){
     requestAnimationFrame(animate);
     const delta=Math.min(clock.getDelta(),.05);
     elapsed+=delta;
-    samples++;
+    sample++;
 
-    water.material.uniforms.time.value += delta*.45;
-
-    for(const v of vehicles){
-        const trafficFactor=Number(traffic.value)/45;
-        v.progress += v.speed*delta*60*trafficFactor;
-        if(v.progress>1.08) v.progress=-.08;
-
-        const x=-195+v.progress*390;
-        v.mesh.position.set(x,29,v.lane);
+    if(water.material.uniforms.time){
+        water.material.uniforms.time.value+=delta*.4;
     }
 
-    // Sensor pulse effect
-    for(const s of [...primarySensors,...extraSensors]){
-        const pulse=1+Math.sin(elapsed*3+s.sphere.position.x*.05)*.12;
-        s.sphere.scale.setScalar(pulse);
-        s.halo.scale.setScalar(1+Math.sin(elapsed*2)*.12);
-    }
+    const trafficFactor=Number(traffic.value)/45;
+    vehicles.forEach(v=>{
+        v.progress+=v.speed*delta*60*trafficFactor;
+        if(v.progress>1.08)v.progress=-.08;
+        v.mesh.position.set(
+            -190+v.progress*380,
+            deckHeight+2.8,
+            v.lane
+        );
+    });
 
-    // Visual bridge response in the educational simulation
-    const response=Number(stiffness.value)/100;
-    bridgeGroup.position.y=Math.sin(elapsed*2)*response*.12;
+    [...primarySensors,...extraSensors].forEach(s=>{
+        const pulse=1+Math.sin(elapsed*3+s.marker.position.x*.04)*.1;
+        s.marker.scale.setScalar(pulse);
+        s.halo.scale.setScalar(1+Math.sin(elapsed*2)*.1);
+    });
 
-    updateTelemetry(elapsed);
+    // Small illustrative movement, not a structural physics model.
+    bridgeGroup.position.y=
+        Math.sin(elapsed*2)*Number(stiffness.value)/100*.1;
+
+    telemetry(elapsed);
+    $("clock").textContent=new Date().toLocaleTimeString();
+
     controls.update();
     renderer.render(scene,camera);
 }
+
+const clock=new THREE.Clock();
 animate();
 
 window.addEventListener("resize",()=>{
-    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.aspect=innerWidth/innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth,window.innerHeight);
+    renderer.setSize(innerWidth,innerHeight);
 });
-
-setTimeout(()=>{
-    const loading=$("loading");
-    loading.style.opacity=0;
-    setTimeout(()=>loading.remove(),900);
-},2500);
-
 </script>
 </body>
 </html>
 """
 
-components.html(html, height=1100, scrolling=False)
+components.html(HTML, height=1050, scrolling=False)
